@@ -1,8 +1,10 @@
-#! /usr/bin/env python2
+#!/usr/bin/env python3
 
 from __future__ import print_function
+
+from setuptools import setup
+
 from distutils.core import setup, Extension
-from distutils.util import get_platform
 from distutils.sysconfig import get_python_lib, get_config_vars
 from distutils.dist import DistributionMetadata
 from distutils.command.install_data import install_data
@@ -12,7 +14,6 @@ import io
 import os
 import platform
 from shutil import copy2, copyfile, rmtree
-import sys
 import tempfile
 import atexit
 
@@ -47,7 +48,7 @@ def win_get_llvm_reg():
     except FileNotFoundError:
       pass
     return winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, REG_PATH, 0, winreg.KEY_READ)
-  
+
 def win_find_clang_path():
     try:
         with win_get_llvm_reg() as rkey:
@@ -342,4 +343,3 @@ DistributionMetadata.write_pkg_file = _write_pkg_file
 
 
 buil_all()
-
