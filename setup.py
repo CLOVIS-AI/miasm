@@ -1,20 +1,20 @@
 #! /usr/bin/env python2
 
 from __future__ import print_function
-from distutils.core import setup, Extension
-from distutils.util import get_platform
-from distutils.sysconfig import get_python_lib, get_config_vars
-from distutils.dist import DistributionMetadata
-from distutils.command.install_data import install_data
-from tempfile import TemporaryFile
+
+import atexit
 import fnmatch
 import io
 import os
 import platform
-from shutil import copy2, copyfile, rmtree
-import sys
 import tempfile
-import atexit
+from setuptools import setup, Extension
+from distutils.command.install_data import install_data
+from distutils.dist import DistributionMetadata, Distribution
+from distutils.sysconfig import get_python_lib
+from sysconfig import get_config_vars
+from shutil import copy2, copyfile, rmtree
+from tempfile import TemporaryFile
 
 is_win = platform.system() == "Windows"
 is_mac = platform.system() == "Darwin"
@@ -22,16 +22,19 @@ is_64bit = platform.architecture()[0] == "64bit"
 if is_win:
     import winreg
 
+
 def set_extension_compile_args(extension):
     rel_lib_path = extension.name.replace('.', '/')
     abs_lib_path = os.path.join(get_python_lib(), rel_lib_path)
     lib_name = abs_lib_path + '.so'
-    extension.extra_link_args = [ '-Wl,-install_name,' + lib_name]
+    extension.extra_link_args = ['-Wl,-install_name,' + lib_name]
+
 
 class smart_install_data(install_data):
     """Replacement for distutils.command.install_data to handle
     configuration files location.
     """
+
     def run(self):
         # install files to /etc when target was /usr(/local)/etc
         self.data_files = [
@@ -40,20 +43,23 @@ class smart_install_data(install_data):
         ]
         return install_data.run(self)
 
+
 def win_get_llvm_reg():
     REG_PATH = "SOFTWARE\\LLVM\\LLVM"
     try:
-      return winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, REG_PATH, 0, winreg.KEY_READ | winreg.KEY_WOW64_32KEY)
+        return winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, REG_PATH, 0, winreg.KEY_READ | winreg.KEY_WOW64_32KEY)
     except FileNotFoundError:
-      pass
+        pass
     return winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, REG_PATH, 0, winreg.KEY_READ)
-  
+
+
 def win_find_clang_path():
     try:
         with win_get_llvm_reg() as rkey:
             return winreg.QueryValueEx(rkey, None)[0]
     except FileNotFoundError:
         return None
+
 
 def win_use_clang():
     # Recent (>= 8 ?) LLVM versions does not ship anymore a cl.exe binary in
@@ -75,16 +81,19 @@ def win_use_clang():
 
     return True
 
+
 win_force_clang = False
 if is_win and is_64bit:
     # We do not change to clang if under 32 bits, because even with Clang we
     # don't have uint128_t with the 32 bits ABI.
     win_force_clang = win_use_clang()
     if not win_force_clang:
-        print("Warning: couldn't find a Clang/LLVM installation. Some runtime functions needed by the jitter won't be compiled.")
+        print(
+            "Warning: couldn't find a Clang/LLVM installation. Some runtime functions needed by the jitter won't be compiled.")
+
 
 def build_all():
-    packages=[
+    packages = [
         "miasm",
         "miasm/arch",
         "miasm/arch/x86",
@@ -214,12 +223,12 @@ def build_all():
                    "miasm/runtime/udivmodti4.c",
                    "miasm/runtime/divti3.c",
                    "miasm/runtime/udivti3.c"
-                  ]),
+                   ]),
         Extension("miasm.jitter.Jitgcc",
                   ["miasm/jitter/Jitgcc.c",
                    "miasm/jitter/bn.c",
-                  ]),
-        ]
+                   ]),
+    ]
 
     if is_win:
         # Force setuptools to use whatever msvc version installed
@@ -237,16 +246,17 @@ def build_all():
 
     print("building")
     build_ok = False
-    for name, ext_modules in [("all", ext_modules_all),
-    ]:
+    for name, ext_modules in [("all", ext_modules_all), ]:
         print("build with", repr(name))
         try:
+            # PyCharm thinks 'setup' always returns None
+            # noinspection PyNoneFunctionAssignment,PyTypeChecker
             s = setup(
-                name = "miasm",
-                version = __import__("miasm").VERSION,
-                packages = packages,
+                name="miasm",
+                version=__import__("miasm").VERSION,
+                packages=packages,
                 data_files=[('', ["README.md"])],
-                package_data = {
+                package_data={
                     "miasm": [
                         "jitter/*.h",
                         "jitter/arch/*.h",
@@ -255,15 +265,15 @@ def build_all():
                 },
                 install_requires=['future', 'pyparsing~=2.0'],
                 cmdclass={"install_data": smart_install_data},
-                ext_modules = ext_modules,
+                ext_modules=ext_modules,
                 # Metadata
-                author = "Fabrice Desclaux",
-                author_email = "serpilliere@droid-corp.org",
-                description = "Machine code manipulation library",
-                license = "GPLv2",
+                author="Fabrice Desclaux",
+                author_email="serpilliere@droid-corp.org",
+                description="Machine code manipulation library",
+                license="GPLv2",
                 long_description=long_description,
                 long_description_content_type=long_description_content_type,
-                keywords = [
+                keywords=[
                     "reverse engineering",
                     "disassembler",
                     "emulator",
@@ -277,8 +287,8 @@ def build_all():
                     "Programming Language :: Python :: 2.7",
                     "Programming Language :: Python :: 3.6",
                 ],
-                url = "http://miasm.re",
-            )
+                url="https://miasm.re",
+            )  # type: Distribution
         except SystemExit as e:
             print(repr(e))
             continue
@@ -310,12 +320,12 @@ def build_all():
             lib_dirname = dirname
             break
 
-        jitters = []
         for lib in libs:
             filename = os.path.basename(lib)
             dst = os.path.join(build_base, lib_dirname, "miasm", "jitter")
             # Windows built libraries may have a name like VmMngr.cp38-win_amd64.lib
-            if not any([fnmatch.fnmatch(filename, pattern) for pattern in ["VmMngr.*lib", "Jitgcc.*lib", "Jitllvm.*lib"]]):
+            if not any(
+                    [fnmatch.fnmatch(filename, pattern) for pattern in ["VmMngr.*lib", "Jitgcc.*lib", "Jitllvm.*lib"]]):
                 dst = os.path.join(dst, "arch")
             dst = os.path.join(dst, filename)
             if not os.path.isfile(dst):
@@ -324,10 +334,9 @@ def build_all():
 
 
 with io.open(os.path.join(os.path.abspath(os.path.dirname('__file__')),
-                       'README.md'), encoding='utf-8') as fdesc:
+                          'README.md'), encoding='utf-8') as fdesc:
     long_description = fdesc.read()
 long_description_content_type = 'text/markdown'
-
 
 # Monkey patching (distutils does not handle Description-Content-Type
 # from long_description_content_type parameter in setup()).
@@ -351,6 +360,4 @@ def _write_pkg_file(self, file):
 
 DistributionMetadata.write_pkg_file = _write_pkg_file
 
-
 build_all()
-
