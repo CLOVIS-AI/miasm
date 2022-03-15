@@ -25,6 +25,19 @@ a non exhaustive list of features:
 
 See the official [blog](http://miasm.re) for more examples and demos.
 
+> This branch is an experimental Rust rewrite.
+> The current stable version is available [here](https://github.com/cea-sec/miasm).
+> 
+> To configure Miasm-RS, run:
+> ```shell
+> git submodule init
+> cd miasm-rs
+> git switch <the miasm-rs branch you want>
+> python setup.py install
+> cd ..
+> python setup.py install
+> ```
+
 Table of Contents
 =================
 
