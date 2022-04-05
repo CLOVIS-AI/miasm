@@ -1,11 +1,6 @@
 """Provide dependency graph"""
 
 import miasm_rs
-from miasm.expression.expression import ExprInt, ExprLoc, ExprAssign, \
-    ExprWalk, canonize_to_exprloc
-from miasm.ir.symbexec import SymbolicExecutionEngine
-from miasm.ir.translators import Translator
-from miasm.expression.expression_helper import possible_values
 
 try:
     import z3
