@@ -42,9 +42,8 @@ from miasm.core.utils import force_bytes, cmp_elts
 from miasm.core.graph import DiGraph
 from functools import reduce
 
-
 from miasm_rs import ExprId, ExprInt, ExprLoc, ExprMem, \
-    ExprSlice, ExprCond, ExprCompose, ExprOp, ExprAssign
+    ExprSlice, ExprCond, ExprCompose, ExprOp, ExprAssign, Expr
 
 
 # Define tokens
