@@ -1,6 +1,8 @@
 from __future__ import print_function
 
+import os.path
 from typing import Tuple, Optional
+from unittest import TestCase
 
 from future.utils import viewitems
 from miasm.loader import pe_init
@@ -13,7 +15,8 @@ from miasm.core.locationdb import LocationDB
 from miasm.core.utils import iterbytes, int_to_byte
 
 
-def shellcode(source_path: str, architecture: str, output_path: str, generate_pe: bool = False, encrypt: Optional[Tuple[str, str]] = None):
+def shellcode(source_path: str, architecture: str, output_path: str, generate_pe: bool = False,
+              encrypt: Optional[Tuple[str, str]] = None, force: bool = False) -> bool:
     """
     Assembles an ASM file into a binary file.
 
@@ -22,7 +25,22 @@ def shellcode(source_path: str, architecture: str, output_path: str, generate_pe
     :param output_path: The file that will be created, containing the generated binary
     :param generate_pe: `True` to generate a PE file
     :param encrypt: Tuple of the label where encryption starts, and the label where encryption ends. `None` for no encryption.
+    :param force: `True` to assemble the file even if the output was already up-to-date, `False` to assemble only if the input is newer than the output.
+    :return: `True` if the file was assembled, `False` if it was not (eg. if it was up-to-date).
     """
+
+    # region Avoid assembling if the output is newer than the input
+    try:
+        output_modified_time = os.path.getmtime(output_path)
+    except FileNotFoundError:
+        output_modified_time = 0
+
+    if force or os.path.getmtime(source_path) > output_modified_time:
+        print("shellcode: Assembling", source_path, "into", output_path)
+    else:
+        print("shellcode:", source_path, "is up-to-date; output file:", output_path)
+        return False
+    # endregion
 
     # Get architecture-dependent parameters
     machine = Machine(architecture)
@@ -129,6 +147,8 @@ def shellcode(source_path: str, architecture: str, output_path: str, generate_pe
     with open(output_path, 'wb') as file:
         file.write(bytes(output))
 
+    return True
+
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -145,4 +165,11 @@ if __name__ == '__main__':
                         nargs=2)
     args = parser.parse_args()
 
-    shellcode(args.source, args.architecture, args.output, args.PE, args.encrypt)
+    shellcode(args.source, args.architecture, args.output, args.PE, args.encrypt, force=True)
+
+
+class Test(TestCase):
+
+    def test_avoid_recompile(self):
+        self.assertTrue(shellcode("../samples/x86_32_dead.S", "x86_32", "../samples/x86_32_dead.bin", force=True))
+        self.assertFalse(shellcode("../samples/x86_32_dead.S", "x86_32", "../samples/x86_32_dead.bin", force=False))
