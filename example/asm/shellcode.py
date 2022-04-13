@@ -97,7 +97,8 @@ def shellcode(source_path: str, architecture: str, output_path: str, generate_pe
     # Print and graph firsts blocks before patching it
     for block in asmcfg.blocks:
         print(block)
-    open("graph.dot", "w").write(asmcfg.dot())
+    with open("graph.dot", "w") as graph:
+        graph.write(asmcfg.dot())
 
     # Apply patches
     patches = asmblock.asm_resolve_final(
@@ -125,7 +126,8 @@ def shellcode(source_path: str, architecture: str, output_path: str, generate_pe
             virt.set(offset, raw)
 
     # Produce output
-    open(output_path, 'wb').write(bytes(output))
+    with open(output_path, 'wb') as file:
+        file.write(bytes(output))
 
 
 if __name__ == '__main__':
