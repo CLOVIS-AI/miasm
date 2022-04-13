@@ -128,18 +128,18 @@ class TranslatorHtml(Translator):
         return out
 
     def from_ExprOp(self, expr):
-        op = ESCAPE_CHARS.sub(self._fix_chars, expr._op)
-        if expr._op == '-':		# Unary minus
-            return '-' + self.str_protected_child(expr._args[0], expr)
+        op = ESCAPE_CHARS.sub(self._fix_chars, expr.op)
+        if expr.op == '-':		# Unary minus
+            return '-' + self.str_protected_child(expr.args[0], expr)
         if expr.is_associative() or expr.is_infix():
             return (' ' + op + ' ').join([self.str_protected_child(arg, expr)
-                                          for arg in expr._args])
+                                          for arg in expr.args])
 
         op = '<font color="%s">%s</font>' % (utils.COLOR_OP_FUNC, op)
         return (op + '(' +
                 ', '.join(
                     self.from_expr(arg)
-                    for arg in expr._args
+                    for arg in expr.args
                 ) + ')')
 
     def from_ExprAssign(self, expr):
