@@ -243,7 +243,7 @@ class DeadRemoval(object):
         for index, assignblk in enumerate(block):
             for lval, rval in viewitems(assignblk):
                 if (lval.is_mem() or
-                    self.ir_arch.IRDst == lval or
+                    self.lifter.IRDst == lval or
                     lval.is_id("exception_flags") or
                     is_function_call(rval)):
                     useful.add(AssignblkNode(block.loc_key, index, lval))
@@ -386,8 +386,8 @@ class DeadRemoval(object):
             irs = []
             for idx, assignblk in enumerate(block):
                 new_assignblk = dict(assignblk)
-                for lval in assignblk:
-                    if (AssignblkNode(block.loc_key, idx, lval) not in useful) or (lval == self.ir_arch.pc):
+                for (lval, _) in assignblk:
+                    if (AssignblkNode(block.loc_key, idx, lval) not in useful) or (lval == self.lifter.pc):
                         del new_assignblk[lval]
                         modified = True
                 irs.append(AssignBlock(new_assignblk, assignblk.instr))
