@@ -17,22 +17,20 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-from builtins import zip
 import warnings
+from typing import Dict, Set
 
-from itertools import chain
 from future.utils import viewvalues, viewitems
 
 import miasm.expression.expression as m2_expr
-from miasm.expression.expression_helper import get_missing_interval
 from miasm.core.asmblock import AsmBlock, AsmBlockBad, AsmConstraint
 from miasm.core.graph import DiGraph
 from miasm.ir.translators import Translator
-from functools import reduce
 from miasm.core import utils
 import re
 from miasm_rs import IRBlock
 from miasm_rs import AssignBlock
+from miasm.core.locationdb import LocKey
 
 def _expr_loc_to_symb(expr, loc_db):
     if not expr.is_loc():
@@ -194,6 +192,7 @@ class IRCFG(DiGraph):
 
     @property
     def blocks(self):
+        # type: () -> Dict[LocKey, IRBlock]
         return self._blocks
 
     def add_irblock(self, irblock):
@@ -304,6 +303,7 @@ class IRCFG(DiGraph):
         return self.blocks.get(loc_key, None)
 
     def getby_offset(self, offset):
+        # type: (int) -> Set[IRBlock]
         """
         Return the set of loc_keys of irblocks containing @offset
         @offset: address
