@@ -242,10 +242,7 @@ class DeadRemoval(object):
         useful = set()
         for index, assignblk in enumerate(block):
             for lval, rval in viewitems(assignblk):
-                if (lval.is_mem() or
-                    self.lifter.IRDst == lval or
-                    lval.is_id("exception_flags") or
-                    is_function_call(rval)):
+                if self.is_unkillable_destination(lval, rval):
                     useful.add(AssignblkNode(block.loc_key, index, lval))
         return useful
 
