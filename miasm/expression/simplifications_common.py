@@ -1721,11 +1721,13 @@ def simp_add_multiple(_, expr):
 
     for arg, count in viewitems(operands):
         if count == 0:
-            continue
-        if count == 1:
+            pass
+        elif count == 1:
             out.append(arg)
-            continue
-        out.append(arg * ExprInt(count, expr.size))
+        elif count < 0:
+            out.append(arg * (-ExprInt(-count, expr.size)))
+        else:
+            out.append(arg * ExprInt(count, expr.size))
 
     if len(out) == len(expr.args):
         # No reductions
