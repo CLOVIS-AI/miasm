@@ -189,7 +189,7 @@ def check_ops_msb(a, b, c):
 def arith_flag(a, b, c):
     a_s, b_s, c_s = a.size, b.size, c.size
     check_ops_msb(a_s, b_s, c_s)
-    a_s, b_s, c_s = a.msb(), b.msb(), c.msb()
+    a_s, b_s, c_s = a.msb, b.msb, c.msb
     return a_s, b_s, c_s
 
 # checked: ok for adc add because b & c before +cf
@@ -635,12 +635,12 @@ def _rotate_tpl(ir, instr, dst, src, op, left=False):
     # CF is computed with 1-less round than `res`
     new_cf = m2_expr.ExprOp(
         op, dst, shifter - m2_expr.ExprInt(1, size=shifter.size))
-    new_cf = new_cf.msb() if left else new_cf[:1]
+    new_cf = new_cf.msb if left else new_cf[:1]
 
     # OF is defined only for @b == 1
     new_of = m2_expr.ExprCond(src - m2_expr.ExprInt(1, size=src.size),
                               m2_expr.ExprInt(0, size=of.size),
-                              res.msb() ^ new_cf if left else (dst ^ res).msb())
+                              res.msb ^ new_cf if left else (dst ^ res).msb)
 
     # Build basic blocks
     e_do = [m2_expr.ExprAssign(cf, new_cf),
@@ -687,9 +687,9 @@ def rotate_with_carry_tpl(ir, instr, op, dst, src):
 
     result_trunc = result[:dst.size]
     if op == '<<<':
-        of_value = result_trunc.msb() ^ new_cf
+        of_value = result_trunc.msb ^ new_cf
     else:
-        of_value = (dst ^ result_trunc).msb()
+        of_value = (dst ^ result_trunc).msb
     # OF is defined only for @b == 1
     new_of = m2_expr.ExprCond(src - m2_expr.ExprInt(1, size=src.size),
                               m2_expr.ExprInt(0, size=of.size),
@@ -741,7 +741,7 @@ def _shift_tpl(op, ir, instr, a, b, c=None, op_inv=None, left=False,
     res = m2_expr.ExprOp(op, a, shifter)
     cf_from_dst = m2_expr.ExprOp(op, a,
                                  (shifter - m2_expr.ExprInt(1, a.size)))
-    cf_from_dst = cf_from_dst.msb() if left else cf_from_dst[:1]
+    cf_from_dst = cf_from_dst.msb if left else cf_from_dst[:1]
 
     new_cf = cf_from_dst
     i1 = m2_expr.ExprInt(1, size=a.size)
@@ -769,12 +769,12 @@ def _shift_tpl(op, ir, instr, a, b, c=None, op_inv=None, left=False,
         cf_from_src = m2_expr.ExprOp(op, b,
                                      (shifter.zeroExtend(b.size) &
                                       m2_expr.ExprInt(a.size - 1, b.size)) - i1)
-        cf_from_src = cf_from_src.msb() if left else cf_from_src[:1]
+        cf_from_src = cf_from_src.msb if left else cf_from_src[:1]
         new_cf = m2_expr.ExprCond(cond_overflow, cf_from_src, cf_from_dst)
 
     # Overflow flag, only occurred when shifter is equal to 1
     if custom_of is None:
-        value_of = a.msb() ^ a[-2:-1] if left else b[:1] ^ a.msb()
+        value_of = a.msb ^ a[-2:-1] if left else b[:1] ^ a.msb
     else:
         value_of = custom_of
 
@@ -816,7 +816,7 @@ def sar(ir, instr, dst, src):
 
 
 def shr(ir, instr, dst, src):
-    return _shift_tpl(">>", ir, instr, dst, src, custom_of=dst.msb())
+    return _shift_tpl(">>", ir, instr, dst, src, custom_of=dst.msb)
 
 
 def shrd(ir, instr, dst, src1, src2):
@@ -2210,7 +2210,7 @@ def fxam(ir, instr):
         )
     )
     base = [m2_expr.ExprAssign(ir.IRDst, irdst),
-         m2_expr.ExprAssign(float_c1, dst.msb())
+         m2_expr.ExprAssign(float_c1, dst.msb)
     ]
     base += set_float_cs_eip(instr)
 
@@ -3218,7 +3218,7 @@ def _tpl_aaa(_, instr, op):
     i1 = m2_expr.ExprInt(1, 1)
     # cond: if (al & 0xf) > 9 OR af == 1
     cond = (r_al & m2_expr.ExprInt(0xf, 8)) - m2_expr.ExprInt(9, 8)
-    cond = ~cond.msb() & m2_expr.ExprCond(cond, i1, i0)
+    cond = ~cond.msb & m2_expr.ExprCond(cond, i1, i0)
     cond |= af & i1
 
     to_add = m2_expr.ExprInt(0x106, size=r_ax.size)
@@ -3934,7 +3934,7 @@ def pmaddwd(ir, instr, dst, src):
 
 def _absolute(expr):
     """Return abs(@expr)"""
-    signed = expr.msb()
+    signed = expr.msb
     value_unsigned = (expr ^ expr.mask) + m2_expr.ExprInt(1, expr.size)
     return m2_expr.ExprCond(signed, value_unsigned, expr)
 
@@ -4930,7 +4930,7 @@ def _saturation_add(expr):
     # The resulting expression being more complicated with an impossible case
     # (signed=True), we rewrite the rule here
 
-    return m2_expr.ExprCond((arg1 + arg2).msb(), m2_expr.ExprInt(-1, expr.size),
+    return m2_expr.ExprCond((arg1 + arg2).msb, m2_expr.ExprInt(-1, expr.size),
                             expr)
 
 def _saturation_add_signed(expr):
