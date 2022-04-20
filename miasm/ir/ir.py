@@ -434,7 +434,7 @@ class Lifter(object):
             for assignblk in irb:
                 irs.append(AssignBlock(assignblk, instr))
             extra_irblocks[index] = IRBlock(self.loc_db, irb.loc_key, irs)
-        assignblk = AssignBlock(ir_bloc_cur, instr)
+        assignblk = AssignBlock(ir_bloc_cur, str(instr))
         return assignblk, extra_irblocks
 
     def add_instr_to_ircfg(self, instr, ircfg, loc_key=None, gen_pc_updt=False):
