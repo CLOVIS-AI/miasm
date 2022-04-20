@@ -828,7 +828,7 @@ def _expr_compute_cf(op1, op2):
     @op2: Expression
     """
     res = op1 - op2
-    cf = (((op1 ^ op2) ^ res) ^ ((op1 ^ res) & (op1 ^ op2))).msb()
+    cf = (((op1 ^ op2) ^ res) ^ ((op1 ^ res) & (op1 ^ op2))).msb
     return cf
 
 def _expr_compute_of(op1, op2):
@@ -839,7 +839,7 @@ def _expr_compute_of(op1, op2):
     @op2: Expression
     """
     res = op1 - op2
-    of = (((op1 ^ res) & (op1 ^ op2))).msb()
+    of = (((op1 ^ res) & (op1 ^ op2))).msb
     return of
 
 def _expr_compute_zf(op1, op2):
@@ -862,7 +862,7 @@ def _expr_compute_nf(op1, op2):
     @op2: Expression
     """
     res = op1 - op2
-    nf = res.msb()
+    nf = res.msb
     return nf
 
 
