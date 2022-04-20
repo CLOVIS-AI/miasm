@@ -286,6 +286,9 @@ class AsmBlockBad(AsmBlock):
             error_txt
         )
 
+    def __repr__(self):
+        return "<Bad block %s: %s>" % (self.loc_key, self.ERROR_TYPES.get(self._errno, self._errno))
+
     def is_bad(self):
         """
         Return True is block is AsmBlockBad
