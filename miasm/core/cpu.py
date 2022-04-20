@@ -1,11 +1,10 @@
-#-*- coding:utf-8 -*-
-
+from ast import Bytes
 from builtins import range
 import re
 import struct
 import logging
 from collections import defaultdict
-
+from typing import List, Optional as Option, Set, Dict
 
 from future.utils import viewitems, viewvalues
 
@@ -1080,8 +1079,7 @@ class cls_mn(with_metaclass(metamn, object)):
 
     @classmethod
     def guess_mnemo(cls, bs, attrib, pre_dis_info, offset):
-        candidates = []
-
+        # type: (BinStream, int, Dict, int) -> Set[Bytes]
         candidates = set()
 
         fname_values = pre_dis_info
@@ -1111,7 +1109,7 @@ class cls_mn(with_metaclass(metamn, object)):
                 else:
                     todo.append((dict(fname_values), (nb, v), offset, offset_bit))
 
-        return [c for c in candidates]
+        return candidates
 
     def reset_class(self):
         for f in self.fields_order:
@@ -1176,7 +1174,9 @@ class cls_mn(with_metaclass(metamn, object)):
         return fields
 
     @classmethod
-    def dis(cls, bs_o, mode_o = None, offset=0):
+    def dis(cls, bs_o, mode_o=None, offset=0):
+        # type: (BinStream, Option[int], int) -> List
+
         assert isinstance(bs_o, BinStream)
         #if not isinstance(bs_o, bin_stream):
         #    bs_o = bin_stream_str(bs_o)
