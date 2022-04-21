@@ -815,7 +815,7 @@ class mn_x86(cls_mn):
                 # multiple REX prefixes case - use last REX prefix
                 x = ord(c)
                 offset += 1
-                c = v.getbytes(offset)
+                c = v.get_bytes(offset, 1)
             pre_dis_info['rex_p'] = 1
             pre_dis_info['rex_w'] = (x >> 3) & 1
             pre_dis_info['rex_r'] = (x >> 2) & 1
