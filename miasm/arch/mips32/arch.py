@@ -211,11 +211,13 @@ class mn_mips32(cpu.cls_mn):
         return info
 
     @classmethod
-    def getbits(cls, bitstream, attrib, start, n):
-        if not n:
+    def getbits(cls, bitstream, attrib, offset, offset_bits, size):
+        if not size:
             return 0
+
+        start = offset * 8 + offset_bits
         o = 0
-        while n:
+        while size:
             offset = start // 8
             n_offset = cls.endian_offset(attrib, offset)
             c = cls.getbytes(bitstream, n_offset, 1)
@@ -224,11 +226,11 @@ class mn_mips32(cpu.cls_mn):
             c = ord(c)
             r = 8 - start % 8
             c &= (1 << r) - 1
-            l = min(r, n)
+            l = min(r, size)
             c >>= (r - l)
             o <<= l
             o |= c
-            n -= l
+            size -= l
             start += l
         return o
 
@@ -842,4 +844,3 @@ mips32op("eret",    [cpu.bs('01000010000000000000000000011000')], [])
 
 mips32op("mtlo",    [cpu.bs('000000'), rs, cpu.bs('000000000000000'), cpu.bs('010011')], [rs])
 mips32op("mthi",    [cpu.bs('000000'), rs, cpu.bs('000000000000000'), cpu.bs('010001')], [rs])
-
