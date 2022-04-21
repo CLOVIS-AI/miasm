@@ -17,11 +17,11 @@ from miasm.arch.mep.regs import exception_flags
 
 def compute_s_inf(arg1, arg2):
     """Signed comparison operator"""
-    return ((arg1 - arg2) ^ ((arg1 ^ arg2) & ((arg1 - arg2) ^ arg1))).msb()
+    return ((arg1 - arg2) ^ ((arg1 ^ arg2) & ((arg1 - arg2) ^ arg1))).msb
 
 def compute_u_inf(x, y):
     """Unsigned comparison operator"""
-    result = (((x - y) ^ ((x ^ y) & ((x - y) ^ x))) ^ x ^ y).msb()
+    result = (((x - y) ^ ((x ^ y) & ((x - y) ^ x))) ^ x ^ y).msb
     return result
 
 def i8(value):
