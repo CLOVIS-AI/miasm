@@ -1177,9 +1177,8 @@ class cls_mn(with_metaclass(metamn, object)):
     def dis(cls, bs_o, mode_o=None, offset=0):
         # type: (BinStream, Option[int], int) -> List
 
-        assert isinstance(bs_o, BinStream)
-        #if not isinstance(bs_o, bin_stream):
-        #    bs_o = bin_stream_str(bs_o)
+        if not isinstance(bs_o, BinStream):
+           bs_o = bin_stream_str(bs_o).get_binstream()
 
         #bs_o.enter_atomic_mode()
 
