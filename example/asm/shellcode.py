@@ -2,7 +2,6 @@ from __future__ import print_function
 
 import os.path
 from typing import Tuple, Optional
-from unittest import TestCase
 
 from future.utils import viewitems
 from miasm.loader import pe_init
@@ -150,6 +149,17 @@ def shellcode(source_path: str, architecture: str, output_path: str, generate_pe
     return True
 
 
+def shellcode_sample(source_path: str, architecture: str, output_path: str, generate_pe: bool = False,
+                     encrypt: Optional[Tuple[str, str]] = None, force: bool = False) -> Tuple[str, bool]:
+    """Same as 'shellcode', but the input is a path relative to the 'samples' directory instead of the current working directory."""
+
+    current_path = os.path.abspath(os.path.dirname(__file__))
+    source_path = os.path.join(current_path, "../samples/", source_path)
+    output_path = os.path.join(current_path, "../samples/", output_path)
+
+    return output_path, shellcode(source_path, architecture, output_path, generate_pe, encrypt, force)
+
+
 if __name__ == '__main__':
     from argparse import ArgumentParser
 
@@ -166,10 +176,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     shellcode(args.source, args.architecture, args.output, args.PE, args.encrypt, force=True)
-
-
-class Test(TestCase):
-
-    def test_avoid_recompile(self):
-        self.assertTrue(shellcode("../samples/x86_32_dead.S", "x86_32", "../samples/x86_32_dead.bin", force=True))
-        self.assertFalse(shellcode("../samples/x86_32_dead.S", "x86_32", "../samples/x86_32_dead.bin", force=False))
