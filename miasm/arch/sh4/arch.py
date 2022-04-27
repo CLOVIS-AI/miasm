@@ -541,7 +541,7 @@ class mn_sh4(cls_mn):
         out = b""
         for _ in range(l):
             n_offset = (offset & ~1) + 1 - offset % 2
-            out += bs.getbytes(n_offset, 1)
+            out += bs.get_bytes_exact(n_offset, 1)
             offset += 1
         return out
 
