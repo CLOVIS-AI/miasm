@@ -515,26 +515,7 @@ class mn_sh4(cls_mn):
 
     @classmethod
     def getbits(cls, bs, attrib, offset, offset_bits, size):
-        if not size:
-            return 0
-
-        start = offset * 8 + offset_bits
-        o = 0
-        while size:
-            i = start // 8
-            c = cls.getbytes(bs, i)
-            if not c:
-                raise IOError
-            c = ord(c)
-            r = 8 - start % 8
-            c &= (1 << r) - 1
-            l = min(r, size)
-            c >>= (r - l)
-            o <<= l
-            o |= c
-            size -= l
-            start += l
-        return o
+        return super(mn_sh4, cls).getbits(bs, "b", offset, offset_bits, size)
 
     @classmethod
     def getbytes(cls, bs, offset, l=1):

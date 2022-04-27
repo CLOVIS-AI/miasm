@@ -449,40 +449,6 @@ class mn_mep(cls_mn):
         return SP
 
     @classmethod
-    def getbits(cls, bitstream, attrib, offset, offset_bit, size):
-        """Return an integer of n bits at the 'start' offset
-
-           Note: code from miasm/arch/mips32/arch.py
-        """
-
-        # Return zero if zero bits are requested
-        if not size:
-            return 0
-
-        start = offset * 8 + offset_bit
-        o = 0  # the returned value
-        while size:
-            # Get a byte, the offset is adjusted according to the endianness
-            offset = start // 8  # the offset in bytes
-            n_offset = cls.endian_offset(attrib, offset)  # the adjusted offset
-            c = cls.getbytes(bitstream, n_offset, 1)
-            if not c:
-                raise IOError
-
-            # Extract the bits value
-            c = ord(c)
-            r = 8 - start % 8
-            c &= (1 << r) - 1
-            l = min(r, size)
-            c >>= (r - l)
-            o <<= l
-            o |= c
-            size -= l
-            start += l
-
-        return o
-
-    @classmethod
     def endian_offset(cls, attrib, offset):
         """Adjust the byte offset according to the endianness"""
 
