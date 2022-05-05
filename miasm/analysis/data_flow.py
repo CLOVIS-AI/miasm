@@ -506,10 +506,7 @@ def _relink_block_node(ircfg, loc_key, son_loc_key, replace_dct):
         if parent_block is None:
             continue
 
-        new_block = parent_block.modify_exprs(
-            lambda expr:expr.replace_expr(replace_dct),
-            lambda expr:expr.replace_expr(replace_dct)
-        )
+        new_block = parent_block.replace(replace_dct)
 
         # Link parent to new dst
         ircfg.add_uniq_edge(parent, son_loc_key)
@@ -1584,8 +1581,8 @@ class DelDummyPhi(object):
     def del_dummy_phi(self, ssa, head):
         ids_to_src = {}
         def_to_loc = {}
-        for block in ssa.graph.iter():
-            for index, assignblock in enumerate(block.iter()):
+        for block in ssa.graph.blocks.values():
+            for index, assignblock in enumerate(block):
                 for dst, src in viewitems(assignblock):
                     if not dst.is_id():
                         continue
@@ -1594,7 +1591,7 @@ class DelDummyPhi(object):
 
 
         modified = False
-        for block in ssa.graph.iter():
+        for block in ssa.graph.blocks.values():
             if not irblock_has_phi(block):
                 continue
             assignblk = block[0]
@@ -1624,7 +1621,7 @@ class DelDummyPhi(object):
                             continue
                         fixed_phis[old_dst] = old_phi_src
 
-                    assignblks = list(block.iter())
+                    assignblks = list(block)
                     assignblks[0] = AssignBlock(fixed_phis, assignblk.instr)
                     assignblks[1:1] = [AssignBlock({dst: true_value}, assignblk.instr)]
                     new_irblock = IRBlock(block.loc_db, block.loc_key, assignblks)
