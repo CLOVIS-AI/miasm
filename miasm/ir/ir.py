@@ -302,6 +302,9 @@ class IRCFG(DiGraph):
             return None
         return self.blocks.get(loc_key, None)
 
+    def set_block(self, loc_key, irblock):
+        self.blocks[loc_key] = irblock
+
     def getby_offset(self, offset):
         # type: (int) -> Set[IRBlock]
         """
