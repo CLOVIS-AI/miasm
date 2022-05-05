@@ -63,7 +63,7 @@ def test_offset():
     loc_db.set_location_offset(loc_key4, 0x1123, force=True)
     assert loc_db.get_location_offset(loc_key4) == 0x1123
 
-    assert 0x1123 in loc_db.offsets
+    assert loc_db.get_offset_location(0x1123) is not None
 
     with pytest.raises(ValueError):
         loc_db.add_location(offset=0x1123)
@@ -90,20 +90,20 @@ def test_names():
 
     loc_db.add_location_name(loc_key5, name1)
     loc_db.add_location_name(loc_key5, name2)
-    assert name1 in loc_db.names
-    assert name2 in loc_db.names
+    assert loc_db.get_name_location(name1) is not None
+    assert loc_db.get_name_location(name2) is not None
     assert name1 in loc_db.get_location_names(loc_key5)
     assert name2 in loc_db.get_location_names(loc_key5)
     assert loc_db.get_name_location(name1) == loc_key5
 
     loc_db.remove_location_name(loc_key5, name1)
-    assert name1 not in loc_db.names
+    assert loc_db.get_name_location(name1) is None
     assert name1 not in loc_db.get_location_names(loc_key5)
 
-    with pytest.raises(KeyError):
+    with pytest.raises(ValueError):
         loc_db.remove_location_name(loc_key5, name1)
 
-    with pytest.raises(KeyError):
+    with pytest.raises(ValueError):
         loc_db.add_location_name(loc_key1, name2)
 
     with pytest.raises(ValueError):
@@ -117,8 +117,8 @@ def test_names():
     loc_db.consistency_check()
 
     # Name and offset manipulation
-    assert loc_db.get_name_offset(name2) is None
-    assert loc_db.get_name_offset("unk_name") is None
+    assert loc_db.get_location_offset(loc_db.get_name_location(name2)) is None
+    assert loc_db.get_name_location("unk_name") is None
 
 
 def test_merge():
