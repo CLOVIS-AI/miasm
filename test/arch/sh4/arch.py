@@ -434,4 +434,4 @@ def test_speed():
 
 def test_profile():
     import cProfile
-    cProfile.run(r'mn_sh4.dis(b"\x17\xfe", None)')
+    cProfile.runctx(r'mn_sh4.dis(b"\x17\xfe", None)', globals(), locals())
