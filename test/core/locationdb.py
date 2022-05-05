@@ -27,9 +27,9 @@ def test_pretty_str():
     loc_db.remove_location_name(loc_key3, "second_name")
 
     assert loc_db.pretty_str(loc_key1) == str(loc_key1)
-    assert loc_db.pretty_str(loc_key2) == "loc_1234"
-    assert loc_db.pretty_str(loc_key3) == "first_name"
-    assert loc_db.get_name_offset("first_name") == 0x5678
+    assert loc_db.pretty_str(loc_key2) == "loc_key_1, loc_1234"
+    assert loc_db.pretty_str(loc_key3) == "loc_key_2, first_name, loc_5678"
+    assert loc_db.get_location_offset(loc_db.get_name_location("first_name")) == 0x5678
 
     loc_db.consistency_check()
 
