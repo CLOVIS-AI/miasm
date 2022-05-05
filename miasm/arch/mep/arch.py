@@ -185,7 +185,6 @@ class instruction_mep(instruction):
             o += ", %s" % self.arg2str(self.args[1])
             # The third operand is displayed in decimal, not in hex
             o += ", %s" % ExprInt2SignedString(self.args[2], pos_fmt="0x%X")
-            o += ", %s" % ExprInt2SignedString(int(self.args[2]), pos_fmt="0x%X")
 
         elif self.name == "(RI)":
             return o
@@ -303,7 +302,7 @@ class instruction_mep(instruction):
             return
 
         # Adjust the immediate according to the current instruction offset
-        off = expr.arg - self.offset
+        off = int(expr) - self.offset
         if int(off % 2):
             raise ValueError("Strange offset! %r" % off)
         self.args[num] = ExprInt(off, 32)
@@ -738,7 +737,7 @@ class mep_deref_sp_offset(mep_deref_reg):
         if getattr(self.parent, "imm7_align4", False):
 
             # Get the integer and check the upper bound
-            v = int(self.expr.ptr.args[1].arg)
+            v = int(self.expr.ptr.args[1])
             if v > 0x80:
                 return False
 
@@ -750,7 +749,7 @@ class mep_deref_sp_offset(mep_deref_reg):
         elif getattr(self.parent, "imm7", False):
 
             # Get the integer and check the upper bound
-            v = int(self.expr.ptr.args[1].arg)
+            v = int(self.expr.ptr.args[1])
             if v > 0x80:
                 return False
 
@@ -762,7 +761,7 @@ class mep_deref_sp_offset(mep_deref_reg):
         elif getattr(self.parent, "disp7_align2", False):
 
             # Get the integer and check the upper bound
-            v = int(self.expr.ptr.args[1].arg)
+            v = int(self.expr.ptr.args[1])
             if v > 0x80:
                 return False
 
