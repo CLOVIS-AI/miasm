@@ -463,7 +463,7 @@ def sra(rn, rm_or_imm5):
     mask = (i32(0xFFFFFFFF) >> shift_mask) << shift_mask
     shift_s = shift_u | mask
 
-    rn = shift_s if rn.msb() else shift_u
+    rn = shift_s if rn.msb else shift_u
 
 
 @sbuild.parse
