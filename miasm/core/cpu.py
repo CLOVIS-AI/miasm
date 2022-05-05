@@ -7,6 +7,8 @@ from collections import defaultdict
 from typing import List, Optional as Option, Set, Dict
 
 from future.utils import viewitems, viewvalues
+from future.utils import with_metaclass
+from miasm_rs import BinStream, InstructionIR
 
 import pyparsing
 
@@ -1069,6 +1071,14 @@ class instruction(object):
 
     def get_info(self, c):
         return
+
+    def to_ir(self):
+        # type: () -> InstructionIR
+        """Converts this instruction into an InstructionIR.
+
+        This is a temporary method that will be removed in the future when instructions will be fully migrated to Rust.
+        """
+        return InstructionIR(self.offset if self.offset is not None else 0, self.b if self.b is not None else [], self.name, self.args, str(self))
 
 
 class cls_mn(with_metaclass(metamn, object)):
