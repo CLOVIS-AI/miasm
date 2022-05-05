@@ -16,7 +16,8 @@ def _run_shellcode(input, arch, output, generate_pe=False, encrypt=None):
     path, _ = shellcode_sample(input, arch, output, generate_pe=generate_pe, encrypt=encrypt)
     yield path, arch
 
-    if os.path.exists(path):
+    if os.path.exists(path) and os.environ.get("miasm_keep_shellcodes") is None:
+        print("Removing generated file <", path, ">. To keep it, create the environment variable 'miasm_keep_shellcodes'.")
         os.remove(path)
 
 
