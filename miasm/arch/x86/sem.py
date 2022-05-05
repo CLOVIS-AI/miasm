@@ -666,7 +666,7 @@ def _rotate_tpl(ir, instr, dst, src, op, left=False):
     e_do.append(m2_expr.ExprAssign(ir.IRDst, loc_skip_expr))
     e.append(m2_expr.ExprAssign(
         ir.IRDst, m2_expr.ExprCond(shifter, loc_do_expr, loc_skip_expr)))
-    return (e, [IRBlock(ir.loc_db, loc_do, [AssignBlock(e_do, instr)])])
+    return (e, [IRBlock(ir.loc_db, loc_do, [AssignBlock(e_do, instr.to_ir())])])
 
 
 def l_rol(ir, instr, dst, src):
@@ -714,7 +714,7 @@ def rotate_with_carry_tpl(ir, instr, op, dst, src):
     e_do.append(m2_expr.ExprAssign(ir.IRDst, loc_skip_expr))
     e.append(m2_expr.ExprAssign(
         ir.IRDst, m2_expr.ExprCond(shifter, loc_do_expr, loc_skip_expr)))
-    return (e, [IRBlock(ir.loc_db, loc_do, [AssignBlock(e_do, instr)])])
+    return (e, [IRBlock(ir.loc_db, loc_do, [AssignBlock(e_do, instr.to_ir())])])
 
 def rcl(ir, instr, dst, src):
     return rotate_with_carry_tpl(ir, instr, '<<<', dst, src)
@@ -806,7 +806,7 @@ def _shift_tpl(op, ir, instr, a, b, c=None, op_inv=None, left=False,
     e_do.append(m2_expr.ExprAssign(ir.IRDst, loc_skip_expr))
     e.append(m2_expr.ExprAssign(ir.IRDst, m2_expr.ExprCond(shifter, loc_do_expr,
                                                         loc_skip_expr)))
-    return e, [IRBlock(ir.loc_db, loc_do, [AssignBlock(e_do, instr)])]
+    return e, [IRBlock(ir.loc_db, loc_do, [AssignBlock(e_do, instr.to_ir())])]
 
 
 def sar(ir, instr, dst, src):
@@ -1797,13 +1797,13 @@ def idiv(ir, instr, src1):
     do_div = []
     do_div += e
     do_div.append(m2_expr.ExprAssign(ir.IRDst, loc_next_expr))
-    blk_div = IRBlock(ir.loc_db, loc_div, [AssignBlock(do_div, instr)])
+    blk_div = IRBlock(ir.loc_db, loc_div, [AssignBlock(do_div, instr.to_ir())])
 
     do_except = []
     do_except.append(m2_expr.ExprAssign(exception_flags, m2_expr.ExprInt(
         EXCEPT_DIV_BY_ZERO, exception_flags.size)))
     do_except.append(m2_expr.ExprAssign(ir.IRDst, loc_next_expr))
-    blk_except = IRBlock(ir.loc_db, loc_except, [AssignBlock(do_except, instr)])
+    blk_except = IRBlock(ir.loc_db, loc_except, [AssignBlock(do_except, instr.to_ir())])
 
     e = []
     e.append(m2_expr.ExprAssign(ir.IRDst,
@@ -1969,12 +1969,12 @@ def stos(ir, instr, size):
     e0 = []
     e0.append(m2_expr.ExprAssign(addr_o, addr_p))
     e0.append(m2_expr.ExprAssign(ir.IRDst, loc_next_expr))
-    e0 = IRBlock(ir.loc_db, loc_df_0, [AssignBlock(e0, instr)])
+    e0 = IRBlock(ir.loc_db, loc_df_0, [AssignBlock(e0, instr.to_ir())])
 
     e1 = []
     e1.append(m2_expr.ExprAssign(addr_o, addr_m))
     e1.append(m2_expr.ExprAssign(ir.IRDst, loc_next_expr))
-    e1 = IRBlock(ir.loc_db, loc_df_1, [AssignBlock(e1, instr)])
+    e1 = IRBlock(ir.loc_db, loc_df_1, [AssignBlock(e1, instr.to_ir())])
 
     e = []
     e.append(m2_expr.ExprAssign(ir.ExprMem(addr, size), b))
@@ -3272,8 +3272,8 @@ def bsr_bsf(ir, instr, dst, src, op_func):
     e_src_not_null.append(m2_expr.ExprAssign(dst, op_func(src)))
     e_src_not_null.append(aff_dst)
 
-    return e, [IRBlock(ir.loc_db, loc_src_null, [AssignBlock(e_src_null, instr)]),
-               IRBlock(ir.loc_db, loc_src_not_null, [AssignBlock(e_src_not_null, instr)])]
+    return e, [IRBlock(ir.loc_db, loc_src_null, [AssignBlock(e_src_null, instr.to_ir())]),
+               IRBlock(ir.loc_db, loc_src_not_null, [AssignBlock(e_src_not_null, instr.to_ir())])]
 
 
 def bsf(ir, instr, dst, src):
@@ -4980,7 +4980,7 @@ def maskmovq(ir, instr, src, mask):
                                 m2_expr.ExprCond(bit,
                                                  write_label,
                                                  next_check_label))
-        blks.append(IRBlock(ir.loc_db, cur_label.loc_key, [AssignBlock([check], instr)]))
+        blks.append(IRBlock(ir.loc_db, cur_label.loc_key, [AssignBlock([check], instr.to_ir())]))
 
     # Build write blocks
     dst_addr = mRDI[instr.mode]
@@ -4993,7 +4993,7 @@ def maskmovq(ir, instr, src, mask):
         write_mem = m2_expr.ExprAssign(m2_expr.ExprMem(write_addr, 8),
                                     src[start: start + 8])
         jump = m2_expr.ExprAssign(ir.IRDst, next_check_label)
-        blks.append(IRBlock(ir.loc_db, cur_label.loc_key, [AssignBlock([write_mem, jump], instr)]))
+        blks.append(IRBlock(ir.loc_db, cur_label.loc_key, [AssignBlock([write_mem, jump], instr.to_ir())]))
 
     # If mask is null, bypass all
     e = [m2_expr.ExprAssign(ir.IRDst, m2_expr.ExprCond(mask,
@@ -5806,7 +5806,7 @@ class Lifter_X86_16(Lifter):
                 "Mnemonic %s not implemented" % instr.name)
 
         instr_ir, extra_ir = mnemo_func[
-            instr.name.lower()](self, instr, *args)
+            instr.name.lower()](self, instr.to_ir(), *args)
         self.mod_pc(instr, instr_ir, extra_ir)
         instr.additional_info.except_on_instr = False
         if instr.additional_info.g1.value & 14 == 0 or \

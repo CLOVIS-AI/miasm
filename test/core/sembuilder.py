@@ -49,8 +49,7 @@ def test():
     c = ExprId('C', 32)
     loc_db = LocationDB()
     ir = IR(loc_db)
-    instr = Instr()
-    res = check(ir, instr, a, b, c)
+    res = check(ir, "dummy instruction", a, b, c)
 
     print("Returned:")
     print(res)

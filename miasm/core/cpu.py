@@ -16,7 +16,7 @@ import miasm.expression.expression as m2_expr
 from miasm.core.bin_stream import bin_stream, bin_stream_str
 from miasm.core.utils import Disasm_Exception
 from miasm.expression.simplifications import expr_simp
-from miasm_rs import BinStream
+from miasm_rs import BinStream, InstructionIR
 
 from miasm.core.asm_ast import AstNode, AstInt, AstId, AstOp
 from miasm.core import utils
@@ -1070,6 +1070,14 @@ class instruction(object):
 
     def get_info(self, c):
         return
+
+    def to_ir(self):
+        # type: () -> InstructionIR
+        """Converts this instruction into an InstructionIR.
+
+        This is a temporary method that will be removed in the future when instructions will be fully migrated to Python.
+        """
+        return InstructionIR(self.offset if self.offset is not None else 0, self.b if self.b is not None else [], self.name, self.args, str(self))
 
 
 class cls_mn(with_metaclass(metamn, object)):
