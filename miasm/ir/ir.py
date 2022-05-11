@@ -25,6 +25,8 @@ from future.utils import viewvalues, viewitems
 import miasm.expression.expression as m2_expr
 from miasm.core.asmblock import AsmBlock, AsmBlockBad, AsmConstraint
 from miasm.core.graph import DiGraph
+from miasm.expression.simplifications import ExpressionSimplifier
+from miasm.expression.expression import ExprAssign
 from miasm.ir.translators import Translator
 from miasm.core import utils
 import re
@@ -331,7 +333,7 @@ class IRCFG(DiGraph):
         for loc_key, block in list(viewitems(self.blocks)):
             assignblks = []
             for assignblk in block:
-                new_assignblk = assignblk.simplify(simplifier)
+                new_assignblk = assignblk.simplify(simplifier.to_new_visitor() if isinstance(simplifier, ExpressionSimplifier) else simplifier)
                 if assignblk != new_assignblk:
                     modified = True
                 assignblks.append(new_assignblk)

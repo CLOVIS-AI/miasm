@@ -45,6 +45,6 @@ assert set(assignblk1.iteritems()) == set(assignblk1.items())
 ## Simplify
 assignblk3 = AssignBlock({id_a: id_b - id_b})
 assert assignblk3[id_a] != int0
-assignblk4 = assignblk3.simplify(expr_simp)
+assignblk4 = assignblk3.simplify(expr_simp.to_new_visitor())
 assert assignblk3[id_a] != int0
 assert assignblk4[id_a] == int0
