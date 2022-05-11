@@ -181,7 +181,7 @@ class CGen(object):
             out = []
             for irblock in irblocks:
                 new_irblock = self.lifter.irbloc_fix_regs_for_mode(irblock, self.lifter.attrib)
-                new_irblock = new_irblock.simplify(expr_simp_high_to_explicit.to_new_visitor())[1]
+                new_irblock = new_irblock.simplify(expr_simp_high_to_explicit.to_new_visitor())
                 out.append(new_irblock)
             irblocks = out
 
