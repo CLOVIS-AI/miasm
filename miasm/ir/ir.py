@@ -437,7 +437,7 @@ class Lifter(object):
         for index, irb in enumerate(extra_irblocks):
             irs = []
             for assignblk in irb:
-                irs.append(AssignBlock(assignblk, instr))
+                irs.append(AssignBlock([ExprAssign(dst, src) for dst, src in assignblk.items()], instr))
             extra_irblocks[index] = IRBlock(self.loc_db, irb.loc_key, irs)
         assignblk = AssignBlock(ir_bloc_cur, instr.to_ir())
         return assignblk, extra_irblocks
