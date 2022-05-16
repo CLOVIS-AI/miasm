@@ -130,11 +130,31 @@ def test_merge():
     # Merge
     loc_db2 = LocationDB()
     loc_db2.add_location(offset=0x3344)
-    loc_db2.add_location(name=name2)
     loc_db.merge(loc_db2)
 
-    assert 0x3344 in loc_db.offsets
-    assert name2 in loc_db.names
+    assert loc_db.get_offset_location(0x3344) is not None
+    assert loc_db.get_name_location(name2) is not None
+
+    loc_db.consistency_check()
+
+    assert loc_db.get_name_location(name2) == loc_key5
+
+
+def test_merge_with_conflicts():
+    loc_db = LocationDB()
+    name2 = "name2"
+    loc_key5 = loc_db.add_location()
+    loc_db.add_location_name(loc_key5, name2)
+
+    # Merge
+    loc_db2 = LocationDB()
+    loc_db2.add_location(offset=0x3344)
+    loc_db2.add_location(name=name2)
+    with pytest.raises(ValueError):
+        loc_db.merge(loc_db2)
+
+    # It is undefined whether 0x3344 is a valid offset now or not
+    assert loc_db.get_name_location(name2) is not None
 
     loc_db.consistency_check()
 
