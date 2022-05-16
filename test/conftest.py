@@ -215,7 +215,7 @@ def sample_test_i386():
 # endregion
 # region Jitters
 
-@pytest.fixture(params=["gcc", "llvm", "python"])
+@pytest.fixture(params=["gcc", "llvm", "python", "llvm_rs"])
 def jitter_name(request):
     """The name of each available Jitter (parameterized)."""
     jitter = request.param  # type: str
