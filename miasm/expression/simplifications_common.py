@@ -269,7 +269,7 @@ def simp_cst_propagation(e_s, expr):
     if (op_name in ['<<', '>>'] and
         args[0].is_op() and
         args[0].op in ['<<', '>>'] and
-        op_name != args[0]):
+        op_name != args[0].op):
         var = args[0].args[0]
         int1 = args[0].args[1]
         int2 = args[1]
