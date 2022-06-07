@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import sys
+from pathlib import Path
 
 from miasm.analysis.binary import Container
 from miasm.analysis.machine import Machine
@@ -8,8 +9,8 @@ from miasm.core.asmblock import AsmCFG, disasmEngine
 from miasm.core.locationdb import LocationDB
 
 
-def disassemble(input):
-    # type: (str) -> (Machine, disasmEngine, AsmCFG)
+def disassemble(input, output):
+    # type: (str, Path) -> (Machine, disasmEngine, AsmCFG)
     """
     Disassembles a binary file and returns its assembly control flow graph (AsmCFG).
     :param input: The file to disassemble
@@ -40,10 +41,12 @@ def disassemble(input):
     # They can be accessed individually through asmcfg.blocks
 
     # Output control flow graph in a dot file
-    open('bin_cfg.dot', 'w').write(asmcfg.dot())
+    output.joinpath("bin_cfg.dot").write_text(asmcfg.dot())
 
     return machine, mdis, asmcfg
 
 
 if __name__ == '__main__':
-    disassemble(sys.argv[1])
+    output = Path()
+
+    disassemble(sys.argv[1], output)

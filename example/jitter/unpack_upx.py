@@ -1,6 +1,8 @@
 from __future__ import print_function
 import os
 import logging
+from pathlib import Path
+
 from miasm.analysis.sandbox import Sandbox_Win_x86_32
 from miasm.jitter.loader.pe import vm2pe
 from miasm.core.locationdb import LocationDB
@@ -19,7 +21,7 @@ parser.add_argument("--graph",
                     action="store_true")
 
 
-def main(options):
+def main(options, output):
     options.load_hdr = True
 
     loc_db = LocationDB()
@@ -74,7 +76,7 @@ def main(options):
 
     # Export CFG graph (dot format)
     if options.graph is True:
-        open("graph.dot", "w").write(asmcfg.dot())
+        output.joinpath("graph.dot").write_text(asmcfg.dot())
 
     if options.verbose is True:
         print(sb.jitter.vm)
@@ -107,10 +109,10 @@ def main(options):
     vm2pe(sb.jitter, out_fname, libs=sb.libs, e_orig=sb.pe)
 
 
-def test(sample_box_upx, jitter_name):
+def test(sample_box_upx, jitter_name, out_path):
     path, _ = sample_box_upx
-    main(parser.parse_args([path, "--jitter", jitter_name]))
+    main(parser.parse_args([path, "--jitter", jitter_name]), out_path)
 
 
 if __name__ == '__main__':
-    main(parser.parse_args())
+    main(parser.parse_args(), Path())

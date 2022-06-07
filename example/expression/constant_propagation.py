@@ -4,6 +4,7 @@ A "constant expression" is an expression based on constants or init regs.
 
 """
 from argparse import ArgumentParser
+from pathlib import Path
 
 from miasm.analysis.binary import Container
 from miasm.analysis.cst_propag import propagate_cst_expr
@@ -14,8 +15,8 @@ from miasm.core.locationdb import LocationDB
 from miasm.expression.simplifications import expr_simp
 
 
-def constant_propagation(input, address, simplify):
-    # type: (str, str, bool) -> None
+def constant_propagation(input, address, simplify, output):
+    # type: (str, str, bool, Path) -> None
     machine = Machine("x86_32")
 
     loc_db = LocationDB()
@@ -41,7 +42,7 @@ def constant_propagation(input, address, simplify):
             modified |= remove_empty_assignblks(ircfg)
             modified |= merge_blocks(ircfg, entry_points)
 
-    open("%s.propag.dot" % input, 'w').write(ircfg.dot())
+    output.joinpath("%s.propag.dot" % input).write_text(ircfg.dot())
 
 
 if __name__ == '__main__':
@@ -53,4 +54,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    constant_propagation(args.filename, args.address, args.simplify)
+    constant_propagation(args.filename, args.address, args.simplify, Path())

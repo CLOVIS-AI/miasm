@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import re
 from itertools import count
+from pathlib import Path
 from typing import Tuple, Any, Iterable
 
 import pytest
@@ -243,7 +244,7 @@ END = ExprId("END", IRDst.size)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test1(variant):
+def test1(variant, out_path):
     G1_IRA = IRA.new_ircfg()
 
     G1_IRB0 = gen_irblock(LBL0, [[ExprAssign(C, CST1), ExprAssign(IRDst, ExprLoc(LBL1, 32))]])
@@ -276,11 +277,11 @@ def test1(variant):
         )
     ]
 
-    check(1, G1_IRA, G1_INPUT, variant, flat)
+    check(1, G1_IRA, G1_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test2(variant):
+def test2(variant, out_path):
     G2_IRA = IRA.new_ircfg()
 
     G2_IRB0 = gen_irblock(LBL0, [[ExprAssign(C, CST1), ExprAssign(IRDst, ExprLoc(LBL1, 32))]])
@@ -307,11 +308,11 @@ def test2(variant):
           (('lbl1', 'b', 0), ('lbl2', 'a', 0))))
     ]
 
-    check(2, G2_IRA, G2_INPUT, variant, flat)
+    check(2, G2_IRA, G2_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test3(variant):
+def test3(variant, out_path):
     G3_IRA = IRA.new_ircfg()
 
     G3_IRB0 = gen_irblock(
@@ -359,11 +360,11 @@ def test3(variant):
               (('lbl2', 3, 0), ('lbl2', 'b', 0)),
               (('lbl2', 'b', 0), ('lbl3', 'a', 0))))]
 
-    check(3, G3_IRA, G3_INPUT, variant, flat)
+    check(3, G3_IRA, G3_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test4(variant):
+def test4(variant, out_path):
     G4_IRA = IRA.new_ircfg()
 
     G4_IRB0 = gen_irblock(LBL0, [[ExprAssign(C, CST1), ExprAssign(IRDst, ExprLoc(LBL1, 32))]])
@@ -392,11 +393,11 @@ def test4(variant):
 
     flat = [(('b', ('lbl2', 'a', 0)), (('b', ('lbl2', 'a', 0)),))]
 
-    check(4, G4_IRA, G4_INPUT, variant, flat)
+    check(4, G4_IRA, G4_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test5(variant):
+def test5(variant, out_path):
     G5_IRA = IRA.new_ircfg()
 
     G5_IRB0 = gen_irblock(LBL0, [[ExprAssign(B, CST1), ExprAssign(IRDst, ExprLoc(LBL1, 32))]])
@@ -446,11 +447,11 @@ def test5(variant):
               (('lbl1', 2, 0), ('lbl1', 'b', 0)),
               (('lbl1', 'b', 0), ('lbl2', 'a', 0))))]
 
-    check(5, G5_IRA, G5_INPUT, variant, flat)
+    check(5, G5_IRA, G5_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test6(variant):
+def test6(variant, out_path):
     G6_IRA = IRA.new_ircfg()
 
     G6_IRB0 = gen_irblock(LBL0, [[ExprAssign(B, CST1), ExprAssign(IRDst, ExprLoc(LBL1, 32))]])
@@ -468,11 +469,11 @@ def test6(variant):
              ((('lbl0', 1, 0), ('lbl0', 'b', 0)),
               (('lbl0', 'b', 0), ('lbl1', 'a', 0))))]
 
-    check(6, G6_IRA, G6_INPUT, variant, flat)
+    check(6, G6_IRA, G6_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test7(variant):
+def test7(variant, out_path):
     G7_IRA = IRA.new_ircfg()
 
     G7_IRB0 = gen_irblock(LBL0, [[ExprAssign(C, CST1), ExprAssign(IRDst, ExprLoc(LBL1, 32))]])
@@ -513,11 +514,11 @@ def test7(variant):
               (('lbl1', 'a', 1), ('lbl2', 'd', 0)),
               (('lbl1', 'b', 0), ('lbl1', 'a', 1))))]
 
-    check(7, G7_IRA, G7_INPUT, variant, flat)
+    check(7, G7_IRA, G7_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test8(variant):
+def test8(variant, out_path):
     G8_IRA = IRA.new_ircfg()
 
     G8_IRB0 = gen_irblock(LBL0, [[ExprAssign(C, CST1), ExprAssign(IRDst, ExprLoc(LBL1, 32))]])
@@ -556,11 +557,11 @@ def test8(variant):
               (('lbl0', 'c', 0), ('lbl1', 'b', 0)),
               (('lbl1', 'b', 0), ('lbl2', 'a', 0))))]
 
-    check(8, G8_IRA, G8_INPUT, variant, flat)
+    check(8, G8_IRA, G8_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test9(variant):
+def test9(variant, out_path):
     G8_IRA = IRA.new_ircfg()
 
     G8_IRB0 = gen_irblock(LBL0, [[ExprAssign(C, CST1), ExprAssign(IRDst, ExprLoc(LBL1, 32))]])
@@ -607,11 +608,11 @@ def test9(variant):
               (('lbl1', 'b', 0), ('lbl2', 'a', 0)),
               (('lbl1', 'c', 1), ('lbl1', 'b', 0))))]
 
-    check(9, G8_IRA, G9_INPUT, variant, flat)
+    check(9, G8_IRA, G9_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test10(variant):
+def test10(variant, out_path):
     G10_IRA = IRA.new_ircfg()
 
     G10_IRB1 = gen_irblock(
@@ -650,11 +651,11 @@ def test10(variant):
               (('lbl1', 2, 0), ('lbl1', 'b', 0)),
               (('lbl1', 'b', 0), ('lbl2', 'a', 0))))]
 
-    check(10, G10_IRA, G10_INPUT, variant, flat)
+    check(10, G10_IRA, G10_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test11(variant):
+def test11(variant, out_path):
     G11_IRA = IRA.new_ircfg()
 
     G11_IRB0 = gen_irblock(
@@ -701,11 +702,11 @@ def test11(variant):
               (('lbl1', 'a', 0), ('lbl2', 'a', 0)),
               (('lbl1', 'b', 0), ('lbl2', 'a', 0))))]
 
-    check(11, G11_IRA, G11_INPUT, variant, flat)
+    check(11, G11_IRA, G11_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test12(variant):
+def test12(variant, out_path):
     G12_IRA = IRA.new_ircfg()
 
     G12_IRB0 = gen_irblock(LBL0, [[ExprAssign(B, CST1), ExprAssign(IRDst, ExprLoc(LBL1, 32))]])
@@ -763,11 +764,11 @@ def test12(variant):
               (('lbl0', 'b', 0), ('lbl1', 'a', 0)),
               (('lbl1', 'a', 0), ('lbl2', 'b', 0))))]
 
-    check(12, G12_IRA, G12_INPUT, variant, flat)
+    check(12, G12_IRA, G12_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test13(variant):
+def test13(variant, out_path):
     G13_IRA = IRA.new_ircfg()
 
     G13_IRB0 = gen_irblock(LBL0, [[ExprAssign(A, CST1)],
@@ -833,11 +834,11 @@ def test13(variant):
               (('lbl0', 'a', 0), ('lbl1', 'c', 0)),
               (('lbl1', 'c', 0), ('lbl3', 'r', 0))))]
 
-    check(13, G13_IRA, G13_INPUT, variant, flat)
+    check(13, G13_IRA, G13_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test14(variant):
+def test14(variant, out_path):
     G14_IRA = IRA.new_ircfg()
 
     G14_IRB0 = gen_irblock(LBL0, [[ExprAssign(A, CST1)],
@@ -909,11 +910,11 @@ def test14(variant):
               (('lbl2', 'd', 0), ('lbl2', 'a', 1)),
               (('lbl2', 'd', 0), ('lbl3', 'r', 0))))]
 
-    check(14, G14_IRA, G14_INPUT, variant, flat)
+    check(14, G14_IRA, G14_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test15(variant):
+def test15(variant, out_path):
     G15_IRA = IRA.new_ircfg()
 
     G15_IRB0 = gen_irblock(LBL0, [[ExprAssign(A, CST1), ExprAssign(IRDst, ExprLoc(LBL1, 32))]])
@@ -964,11 +965,11 @@ def test15(variant):
               (('lbl1', 'c', 1), ('lbl1', 'b', 2)),
               (('lbl1', 'd', 0), ('lbl1', 'c', 1))))]
 
-    check(15, G15_IRA, G15_INPUT, variant, flat)
+    check(15, G15_IRA, G15_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test16(variant):
+def test16(variant, out_path):
     G16_IRA = IRA.new_ircfg()
 
     G16_IRB0 = gen_irblock(
@@ -1017,11 +1018,11 @@ def test16(variant):
              ((('lbl0', 1, 0), ('lbl0', 'a', 0)),
               (('lbl0', 'a', 0), ('lbl5', 'r', 0))))]
 
-    check(16, G16_IRA, G16_INPUT, variant, flat)
+    check(16, G16_IRA, G16_INPUT, variant, flat, out_path)
 
 
 @pytest.mark.parametrize("variant", variants)
-def test17(variant):
+def test17(variant, out_path):
     G17_IRA = IRA.new_ircfg()
 
     G17_IRB0 = gen_irblock(LBL0, [[ExprAssign(A, CST1),
@@ -1054,7 +1055,7 @@ def test17(variant):
               (('lbl1', 'a', 0), ('lbl2', 'a', 0)),
               (('lbl1', 'b', 0), ('lbl2', 'a', 0))))]
 
-    check(17, G17_IRA, G17_INPUT, variant, flat)
+    check(17, G17_IRA, G17_INPUT, variant, flat, out_path)
 
 
 def flatNode(node):
@@ -1184,15 +1185,15 @@ def get_flat_init_depnodes(depnodes):
 all_flats = []
 
 
-def check(test_nb, ircfg, target, variant, flat):
-    # type: (int, IRCFG, Tuple, str, Iterable[Tuple[Iterable[Tuple[str, Any, int]], Iterable[Tuple[Tuple[str, Any, int], Tuple[str, Any, int]]]]]) -> None
+def check(test_nb, ircfg, target, variant, flat, out_path):
+    # type: (int, IRCFG, Tuple, str, Iterable[Tuple[Iterable[Tuple[str, Any, int]], Iterable[Tuple[Tuple[str, Any, int], Tuple[str, Any, int]]]]], Path) -> None
 
     # Extract test elements
     (depnodes, heads) = target
     flat = [unflatGraph(graph) for graph in flat]
 
-    open("depgraph_%02d.dot" % test_nb, "w").write(ircfg.dot())
-    open("depgraph_%02d_block.dot" % test_nb, "w").write(bloc2graph(ircfg))
+    out_path.joinpath("depgraph_%02d.dot" % test_nb).write_text(ircfg.dot())
+    out_path.joinpath("depgraph_%02d_block.dot" % test_nb).write_text(bloc2graph(ircfg))
 
     g_dep = None
     if variant == "full":
@@ -1219,8 +1220,7 @@ def check(test_nb, ircfg, target, variant, flat):
     for i, result in enumerate(results):
         all_flat.add(flatGraph(result.graph))
         all_results.add(flatGraph(result.graph))
-        open("graph_test_%02d_%02d.dot" % (test_nb, i),
-             "w").write(dg2graph(result.graph))
+        out_path.joinpath("graph_test_%02d_%02d.dot" % (test_nb, i)).write_text(dg2graph(result.graph))
 
     flat_depnodes = get_flat_init_depnodes(depnodes)
 
@@ -1228,21 +1228,24 @@ def check(test_nb, ircfg, target, variant, flat):
 
 
 if __name__ == '__main__':
+    output = Path().joinpath("results")
+    output.mkdir(exist_ok=True)
+
     for variant in variants:
-        test1(variant)
-        test2(variant)
-        test3(variant)
-        test4(variant)
-        test5(variant)
-        test6(variant)
-        test7(variant)
-        test8(variant)
-        test9(variant)
-        test10(variant)
-        test11(variant)
-        test12(variant)
-        test13(variant)
-        test14(variant)
-        test15(variant)
-        test16(variant)
-        test17(variant)
+        test1(variant, output)
+        test2(variant, output)
+        test3(variant, output)
+        test4(variant, output)
+        test5(variant, output)
+        test6(variant, output)
+        test7(variant, output)
+        test8(variant, output)
+        test9(variant, output)
+        test10(variant, output)
+        test11(variant, output)
+        test12(variant, output)
+        test13(variant, output)
+        test14(variant, output)
+        test15(variant, output)
+        test16(variant, output)
+        test17(variant, output)

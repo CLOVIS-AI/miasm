@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+from pathlib import Path
+
 from future.utils import viewitems
 
 from miasm.arch.x86.arch import mn_x86
@@ -9,7 +11,7 @@ from miasm.core.locationdb import LocationDB
 loc_db = LocationDB()
 
 
-def main():
+def main(output):
     arch = mn_x86
     lifter = LifterModelCall_x86_32(loc_db)
     ircfg = lifter.new_ircfg()
@@ -27,7 +29,7 @@ def main():
                 print('written:', dst)
                 print()
 
-    open('graph_instr.dot', 'w').write(ircfg.dot())
+    output.joinpath("graph_instr.dot").write_text(ircfg.dot())
 
 
 if __name__ == '__main__':
@@ -35,4 +37,4 @@ if __name__ == '__main__':
     Simple expression manipulation demo.
     Get read/written registers for a given instruction
     """)
-    main()
+    main(Path())

@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from pathlib import Path
 
 from future.utils import viewitems, viewvalues
 
@@ -9,7 +10,7 @@ from miasm.expression.simplifications import expr_simp_high_to_explicit
 from miasm.jitter.llvmconvert import LLVMType, LLVMContext_IRCompilation, LLVMFunction_IRCompilation
 
 
-def export(target, architecture, address):
+def export(target, architecture, address, output):
     from llvmlite import ir as llvm_ir
 
     loc_db = LocationDB()
@@ -82,7 +83,7 @@ def export(target, architecture, address):
     func.builder.ret_void()
 
     # Get it back
-    open("out.ll", "w").write(str(func))
+    output.joinpath("out.ll").write_text(str(func))
     # The optimized CFG can be seen with:
     # $ opt -O2 -dot-cfg -S out.ll && xdot cfg.test.dot
 
@@ -94,4 +95,4 @@ if __name__ == '__main__':
     parser.add_argument("--architecture", "-a", help="Force architecture")
     args = parser.parse_args()
 
-    export(args.target, args.architecture, args.addr)
+    export(args.target, args.architecture, args.addr, Path())

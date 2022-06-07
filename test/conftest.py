@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import pytest
 
@@ -246,5 +247,27 @@ def z3():
 
 def translator_z3():
     return Translator.to_language_or_skip_test("z3")
+
+
+# endregion
+# region Output
+
+@pytest.fixture(scope="function")
+def out_path(pytestconfig, request):
+    # (Config, Any) -> Path
+    """
+    The 'test/out' directory, in which the various tests can create their outputs.
+    """
+    test_root = pytestconfig.rootpath
+    out = test_root.joinpath("out")
+    out.mkdir(exist_ok=True)
+
+    test_path = request.path.with_suffix('').relative_to(test_root)
+    test_out = out.joinpath(test_path)
+    test_out.mkdir(exist_ok=True, parents=True)
+
+    print("Files will be generated in", test_out.absolute())
+
+    return test_out
 
 # endregion

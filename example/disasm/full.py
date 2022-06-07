@@ -1,6 +1,7 @@
 import logging
 from argparse import ArgumentParser
 from collections.abc import Iterable
+from pathlib import Path
 from typing import Optional, Union, List
 
 from future.utils import viewvalues, viewitems
@@ -26,8 +27,8 @@ def full(filename, address=None, architecture=None, base_address=0, follow_call=
          func_watchdog=None, recurse_into_functions=False, verbose=False, gen_ir=False,
          disassemble_null_starting_blocks=False, no_disassemble_ret=False, simplify=False, try_disassemble_all=False,
          generate_image=False, raw_binary=False, def_use=False, ssa=False, propagate_expressions=False, load_ints=False,
-         calls_dont_modify_stack=False):
-    # type: (str, Union[int, str, List[Union[int, str]], None], Optional[str], int, bool, Optional[int], Optional[int], bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool) -> None
+         calls_dont_modify_stack=False, output=Path()):
+    # type: (str, Union[int, str, List[Union[int, str]], None], Optional[str], int, bool, Optional[int], Optional[int], bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, Path) -> None
     """
     Disassembles a binary file and exports data from it.
 
@@ -52,6 +53,7 @@ def full(filename, address=None, architecture=None, base_address=0, follow_call=
     :param propagate_expressions: `True` to propagate expressions
     :param load_ints: `True` to load integers from binary in fixed memory lookup
     :param calls_dont_modify_stack: `True` to consider the stack height as unchanged by `call`s
+    :param output: The directory in which the generated files will be stored (by default, the current directory)
     """
 
     if address is None:
@@ -178,7 +180,7 @@ def full(filename, address=None, architecture=None, base_address=0, follow_call=
         all_asmcfg += blocks
 
     log.info('generate graph file')
-    open('graph_execflow.dot', 'w').write(all_asmcfg.dot(offset=True))
+    output.joinpath("graph_execflow.dot").write_text(all_asmcfg.dot(offset=True))
 
     log.info('generate intervals')
 
@@ -194,7 +196,7 @@ def full(filename, address=None, architecture=None, base_address=0, follow_call=
         log.debug((hex(i), "->", hex(j)))
 
     all_lines.sort(key=lambda x: x.offset)
-    open('lines.dot', 'w').write('\n'.join(str(l) for l in all_lines))
+    output.joinpath("lines.dot").write_text('\n'.join(str(l) for l in all_lines))
     log.info('total lines %s' % total_l)
 
     if propagate_expressions:
@@ -251,19 +253,19 @@ def full(filename, address=None, architecture=None, base_address=0, follow_call=
 
         if def_use:
             reachings = ReachingDefinitions(ircfg_model_call)
-            open('graph_defuse.dot', 'w').write(DiGraphDefUse(reachings).dot())
+            output.joinpath("graph_defuse.dot").write_text(DiGraphDefUse(reachings).dot())
 
         out = ircfg.dot()
-        open('graph_irflow_raw.dot', 'w').write(out)
+        output.joinpath("graph_irflow_raw.dot").write_text(out)
         out = ircfg_model_call.dot()
-        open('graph_irflow.dot', 'w').write(out)
+        output.joinpath("graph_irflow.dot").write_text(out)
 
         if ssa and not propagate_expressions:
             if len(entry_points) != 1:
                 raise RuntimeError("Your graph should have only one head")
             ssa = SSADiGraph(ircfg_model_call)
             ssa.transform(head)
-            open("ssa.dot", "w").write(ircfg_model_call.dot())
+            output.joinpath("ssa.dot").write_text(ircfg_model_call.dot())
 
     if propagate_expressions:
         def is_addr_ro_variable(bs, addr, size):
@@ -300,7 +302,7 @@ def full(filename, address=None, architecture=None, base_address=0, follow_call=
         head = list(entry_points)[0]
         simplifier = CustomIRCFGSimplifierSSA(lifter_model_call)
         ircfg = simplifier.simplify(ircfg_model_call, head)
-        open('final.dot', 'w').write(ircfg.dot())
+        output.joinpath("final.dot").write_text(ircfg.dot())
 
 
 if __name__ == '__main__':

@@ -12,33 +12,33 @@ def test_callback():
     main()
 
 
-def test_dis_binary(shellcode_x86_32_dis):
+def test_dis_binary(shellcode_x86_32_dis, out_path):
     from .dis_binary import disassemble
 
     shellcode_dis_binary, _ = shellcode_x86_32_dis
-    disassemble(shellcode_dis_binary)
+    disassemble(shellcode_dis_binary, out_path)
 
 
-def test_lift(shellcode_x86_32_dis):
+def test_lift(shellcode_x86_32_dis, out_path):
     from .dis_binary_lift import lift
 
     shellcode_dis_binary, _ = shellcode_x86_32_dis
     print("Will disassemble and lift", shellcode_dis_binary)
-    lift(shellcode_dis_binary)
+    lift(shellcode_dis_binary, out_path)
 
 
-def test_lift_model_call(shellcode_x86_32_dis):
+def test_lift_model_call(shellcode_x86_32_dis, out_path):
     from .dis_binary_lift_model_call import lift_model_call
 
     shellcode_dis_binary, _ = shellcode_x86_32_dis
     print("Will disassemble and lift while modeling calls", shellcode_dis_binary)
-    lift_model_call(shellcode_dis_binary)
+    lift_model_call(shellcode_dis_binary, output=out_path)
 
 
-def test_x8_string():
+def test_x8_string(out_path):
     from .dis_x86_string import main
 
-    main()
+    main(out_path)
 
 
 @pytest.mark.parametrize("shellcode,address,disassemble_null_starting_blocks", [
@@ -61,12 +61,12 @@ def test_x8_string():
     (lazy_fixture("shellcode_x86_32_simple"), 0x401000, False),
     (lazy_fixture("shellcode_demo_x86_64"), 0x401000, False),
 ])
-def test_full(shellcode, address, disassemble_null_starting_blocks):
+def test_full(shellcode, address, disassemble_null_starting_blocks, out_path):
     from .full import full
 
     bin, arch = shellcode
     full(bin, architecture=arch, disassemble_null_starting_blocks=disassemble_null_starting_blocks, gen_ir=True,
-         simplify=True, def_use=True, ssa=True, propagate_expressions=True, address=address)
+         simplify=True, def_use=True, ssa=True, propagate_expressions=True, address=address, output=out_path)
 
 
 def test_single_instruction():

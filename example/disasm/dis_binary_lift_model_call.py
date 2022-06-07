@@ -4,8 +4,8 @@ from miasm.ir.ir import IRCFG
 from .dis_binary import *
 
 
-def lift_model_call(input):
-    # type: (str) -> IRCFG
+def lift_model_call(input, output):
+    # type: (str, Path) -> IRCFG
     """
     Disassembles a binary file and lifts it to IR, then returns the IR control flow graph (IRCFG).
     While lifting to IR, we model function calls.
@@ -15,7 +15,7 @@ def lift_model_call(input):
     """
 
     # Generate the AsmCFG using dis_binary.py
-    machine, mdis, asmcfg = disassemble(input)
+    machine, mdis, asmcfg = disassemble(input, output)
 
     # Get a Lifter
     lifter = machine.lifter_model_call(mdis.loc_db)
@@ -28,10 +28,10 @@ def lift_model_call(input):
     # As with AsmCFGs, they can be accessed individually through ircfg.blocks
 
     # Output ir control flow graph in a dot file
-    open('bin_model_call_ir_cfg.dot', 'w').write(ircfg.dot())
+    output.joinpath("bin_model_call_ir_cfg.dot").write_text(ircfg.dot())
 
     return ircfg
 
 
 if __name__ == '__main__':
-    lift_model_call(sys.argv[1])
+    lift_model_call(sys.argv[1], Path())

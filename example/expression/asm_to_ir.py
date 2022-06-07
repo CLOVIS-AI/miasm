@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+from pathlib import Path
+
 from miasm.analysis.data_flow import DeadRemoval
 from miasm.arch.x86.arch import mn_x86
 from miasm.arch.x86.lifter_model_call import LifterModelCall_x86_32
@@ -9,7 +11,7 @@ from miasm.core.locationdb import LocationDB
 from miasm.expression.expression import *
 
 
-def main():
+def main(output):
     # First, asm code
     loc_db = LocationDB()
     asmcfg = parse_asm.parse_txt(
@@ -48,10 +50,10 @@ def main():
         print(irblock)
 
     # Dead propagation
-    open('graph.dot', 'w').write(ircfg.dot())
+    output.joinpath("graph.dot").write_text(ircfg.dot())
     print('*' * 80)
     deadrm(ircfg)
-    open('graph2.dot', 'w').write(ircfg.dot())
+    output.joinpath("graph2.dot").write_text(ircfg.dot())
 
     # Display new IR
     print('new ir blocks')
@@ -60,4 +62,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(Path())

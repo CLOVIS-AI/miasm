@@ -1,10 +1,13 @@
 from __future__ import print_function
+
+from pathlib import Path
+
 from miasm.analysis.binary import Container
 from miasm.analysis.machine import Machine
 from miasm.core.locationdb import LocationDB
 
 
-def main():
+def main(output: Path):
     # The Container will provide a *bin_stream*, bytes source for the disasm engine
     loc_db = LocationDB()
     cont = Container.from_string(
@@ -26,8 +29,10 @@ def main():
     print(asmcfg)
 
     # Output control flow graph in a dot file
-    open('str_cfg.dot', 'w').write(asmcfg.dot())
+    output.joinpath("str_cfg.dot").write_text(asmcfg.dot())
 
 
 if __name__ == '__main__':
-    main()
+    output = Path()
+
+    main(output)

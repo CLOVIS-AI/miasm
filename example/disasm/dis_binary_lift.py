@@ -4,8 +4,8 @@ from miasm.ir.ir import IRCFG
 from .dis_binary import *
 
 
-def lift(input):
-    # type: (str) -> IRCFG
+def lift(input, output):
+    # type: (str, Path) -> IRCFG
     """
     Disassembles a binary file and lifts it to IR, then returns the IR control flow graph (IRCFG).
     :param input: The file to disassemble
@@ -13,7 +13,7 @@ def lift(input):
     """
 
     # Generate the AsmCFG using dis_binary.py
-    machine, mdis, asmcfg = disassemble(input)
+    machine, mdis, asmcfg = disassemble(input, output)
 
     # Get a Lifter
     lifter = machine.lifter(mdis.loc_db)
@@ -26,10 +26,10 @@ def lift(input):
     # As with AsmCFGs, they can be accessed individually through ircfg.blocks
 
     # Output ir control flow graph in a dot file
-    open('bin_ir_cfg.dot', 'w').write(ircfg.dot())
+    output.joinpath("bin_ir_cfg.dot").write_text(ircfg.dot())
 
     return ircfg
 
 
 if __name__ == '__main__':
-    lift(sys.argv[1])
+    lift(sys.argv[1], Path())

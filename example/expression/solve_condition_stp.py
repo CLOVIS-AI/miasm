@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 from optparse import OptionParser
+from pathlib import Path
 
 from future.utils import viewitems
 
@@ -69,7 +70,7 @@ def emul_symb(lifter, ircfg, mdis, states_todo, states_done, ret_addr):
             raise ValueError("Unsupported destination")
 
 
-def solve(filename, address):
+def solve(filename, address, output):
     loc_db = LocationDB()
     translator_smt2 = Translator.to_language("smt2")
 
@@ -164,7 +165,7 @@ def solve(filename, address):
 
         out += conditions
         out.append('(check-sat)')
-        open('out.dot', 'w').write('\n'.join(out))
+        output.joinpath("out.dot").write_text('\n'.join(out))
         try:
             cases = subprocess.check_output(["/home/serpilliere/tools/stp/stp",
                                              "-p", '--SMTLIB2',
@@ -193,4 +194,4 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(0)
 
-    solve(args[0], options.address)
+    solve(args[0], options.address, Path())

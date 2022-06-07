@@ -63,11 +63,10 @@ def test_asmcfg(mdis):
     assert asmcfg.getby_offset(0x69).lines[0].offset == 0x69
 
 
-def test_dot_conversion(mdis):
+def test_dot_conversion(mdis, out_path):
     asmcfg = mdis.dis_multiblock(0)
 
-    with open("graph.dot", "w") as file:
-        file.write(asmcfg.dot())
+    out_path.joinpath("graph1.dot").write_text(asmcfg.dot())
 
 
 @pytest.fixture
@@ -84,7 +83,7 @@ def test_leaves(asmcfg_and_last_block):
     assert len(leaves) == 1
 
 
-def test_asmcfg_modification(asmcfg_and_last_block):
+def test_asmcfg_modification(asmcfg_and_last_block, out_path):
     mdis, asmcfg, last_block_loc_key = asmcfg_and_last_block
 
     # Remove first_block for the rest of the graph
@@ -131,7 +130,7 @@ def test_asmcfg_modification(asmcfg_and_last_block):
     assert last_block_loc_key in asmcfg.nodes()
 
     # Graph the final output
-    open("graph2.dot", "w").write(asmcfg.dot())
+    out_path.joinpath("graph2.dot").write_text(asmcfg.dot())
 
     # loc_key_to_block should always be updated
     assert asmcfg.loc_key_to_block(first_block.loc_key) == first_block
@@ -241,7 +240,7 @@ def test_asmcfg_modification(asmcfg_and_last_block):
     asmcfg.sanity_check()
 
 
-def test_block_merge_split():
+def test_block_merge_split(out_path):
     data2 = decode_hex("31c0eb0c31c9750c31d2eb0c31ffebf831dbebf031edebfc31f6ebf031e4c3")
     cont2 = Container.from_string(data2, loc_db)
     mdis = Machine("x86_32").dis_engine(cont2.bin_stream, loc_db=loc_db)
@@ -253,13 +252,13 @@ def test_block_merge_split():
     asmcfg.add_block(mdis.dis_block(len(data2)))
 
     # Dump the graph before merging
-    open("graph3.dot", "w").write(asmcfg.dot())
+    out_path.joinpath("graph3.dot").write_text(asmcfg.dot())
 
     # Apply merging
     asmcfg = bbl_simplifier(asmcfg)
 
     # Dump the graph after merging
-    open("graph4.dot", "w").write(asmcfg.dot())
+    out_path.joinpath("graph4.dot").write_text(asmcfg.dot())
 
     # Check the final state
     assert len(asmcfg) == 5
@@ -304,7 +303,7 @@ def test_block_merge_split():
     asmcfg_bef = asmcfg.copy()
     mdis.apply_splitting(asmcfg)
     assert asmcfg_bef == asmcfg
-    open("graph5.dot", "w").write(asmcfg.dot())
+    out_path.joinpath("graph5.dot").write_text(asmcfg.dot())
 
     # Create conditions for a block split
     inside_firstbbl = loc_db.get_offset_location(4)

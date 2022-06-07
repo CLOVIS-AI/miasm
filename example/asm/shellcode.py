@@ -114,7 +114,7 @@ def shellcode(source_path: str, architecture: str, output_path: str, generate_pe
     # Print and graph firsts blocks before patching it
     for block in asmcfg.blocks:
         print(block)
-    with open("graph.dot", "w") as graph:
+    with open("%s.dot" % output_path, "w") as graph:
         graph.write(asmcfg.dot())
 
     # Apply patches

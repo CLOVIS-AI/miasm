@@ -1,4 +1,5 @@
 """Test cases for dead code elimination"""
+from pathlib import Path
 
 from miasm.core.locationdb import LocationDB
 from miasm.analysis.data_flow import DeadRemoval, ReachingDefinitions, DiGraphDefUse
@@ -85,7 +86,7 @@ Lifter = LifterTest(loc_db)
 deadrm = DeadRemoval(Lifter)
 
 
-def test1():
+def test1(out_path):
     """Simple graph with dead and alive variables"""
     G1_cfg = Lifter.new_ircfg()
 
@@ -109,10 +110,10 @@ def test1():
     for irb in [G1_EXP_IRB0, G1_EXP_IRB1, G1_EXP_IRB2]:
         G1_EXP_cfg.add_irblock(irb)
 
-    check_results(G1_cfg, G1_EXP_cfg, 1)
+    check_results(G1_cfg, G1_EXP_cfg, 1, out_path)
 
 
-def test2():
+def test2(out_path):
     """Natural loop with dead variable"""
     G2_cfg = Lifter.new_ircfg()
 
@@ -137,10 +138,10 @@ def test2():
     for irb in [G2_EXP_IRB0, G2_EXP_IRB1, G2_EXP_IRB2]:
         G2_EXP_cfg.add_irblock(irb)
 
-    check_results(G2_cfg, G2_EXP_cfg, 2)
+    check_results(G2_cfg, G2_EXP_cfg, 2, out_path)
 
 
-def test3():
+def test3(out_path):
     """Natural loop with alive variables"""
     G3_cfg = Lifter.new_ircfg()
 
@@ -165,10 +166,10 @@ def test3():
     for irb in [G3_EXP_IRB0, G3_EXP_IRB1, G3_EXP_IRB2]:
         G3_EXP_cfg.add_irblock(irb)
 
-    check_results(G3_cfg, G3_EXP_cfg, 3)
+    check_results(G3_cfg, G3_EXP_cfg, 3, out_path)
 
 
-def test4():
+def test4(out_path):
     """If/else with dead variables"""
     G4_cfg = Lifter.new_ircfg()
 
@@ -196,10 +197,10 @@ def test4():
     for irb in [G4_EXP_IRB0, G4_EXP_IRB1, G4_EXP_IRB2, G4_EXP_IRB3]:
         G4_EXP_cfg.add_irblock(irb)
 
-    check_results(G4_cfg, G4_EXP_cfg, 4)
+    check_results(G4_cfg, G4_EXP_cfg, 4, out_path)
 
 
-def test5():
+def test5(out_path):
     """Loop and if/else with dead variables"""
     G5_cfg = Lifter.new_ircfg()
 
@@ -235,10 +236,10 @@ def test5():
                 G5_EXP_IRB3, G5_EXP_IRB4, G5_EXP_IRB5]:
         G5_EXP_cfg.add_irblock(irb)
 
-    check_results(G5_cfg, G5_EXP_cfg, 5)
+    check_results(G5_cfg, G5_EXP_cfg, 5, out_path)
 
 
-def test6():
+def test6(out_path):
     """Natural loop with dead variables symmetric assignment
 
     (a = b <-> b = a)"""
@@ -268,10 +269,10 @@ def test6():
     for irb in [G6_EXP_IRB0, G6_EXP_IRB1, G6_EXP_IRB2, G6_EXP_IRB3]:
         G6_EXP_cfg.add_irblock(irb)
 
-    check_results(G6_cfg, G6_EXP_cfg, 6)
+    check_results(G6_cfg, G6_EXP_cfg, 6, out_path)
 
 
-def test7():
+def test7(out_path):
     """Double entry loop with dead variables"""
     G7_cfg = Lifter.new_ircfg()
 
@@ -301,10 +302,10 @@ def test7():
     for irb in [G7_EXP_IRB0, G7_EXP_IRB1, G7_EXP_IRB2, G7_EXP_IRB3]:
         G7_EXP_cfg.add_irblock(irb)
 
-    check_results(G7_cfg, G7_EXP_cfg, 7)
+    check_results(G7_cfg, G7_EXP_cfg, 7, out_path)
 
 
-def test8():
+def test8(out_path):
     """Nested loop with dead variables"""
     G8_cfg = Lifter.new_ircfg()
 
@@ -336,10 +337,10 @@ def test8():
     for irb in [G8_EXP_IRB0, G8_EXP_IRB1, G8_EXP_IRB2, G8_EXP_IRB3]:
         G8_EXP_cfg.add_irblock(irb)
 
-    check_results(G8_cfg, G8_EXP_cfg, 8)
+    check_results(G8_cfg, G8_EXP_cfg, 8, out_path)
 
 
-def test9():
+def test9(out_path):
     """Multiple-exit loops with dead variables"""
     G9_cfg = Lifter.new_ircfg()
 
@@ -375,10 +376,10 @@ def test9():
     for irb in [G9_EXP_IRB0, G9_EXP_IRB1, G9_EXP_IRB2, G9_EXP_IRB3, G9_EXP_IRB4]:
         G9_EXP_cfg.add_irblock(irb)
 
-    check_results(G9_cfg, G9_EXP_cfg, 9)
+    check_results(G9_cfg, G9_EXP_cfg, 9, out_path)
 
 
-def test10():
+def test10(out_path):
     """Natural loop with alive variables symmetric assignment
 
     (a = b <-> b = a)"""
@@ -409,10 +410,10 @@ def test10():
     for irb in [G10_EXP_IRB0, G10_EXP_IRB1, G10_EXP_IRB2, G10_EXP_IRB3]:
         G10_EXP_cfg.add_irblock(irb)
 
-    check_results(G10_cfg, G10_EXP_cfg, 10)
+    check_results(G10_cfg, G10_EXP_cfg, 10, out_path)
 
 
-def test11():
+def test11(out_path):
     """If/else conditions with alive variables"""
     G11_cfg = Lifter.new_ircfg()
 
@@ -445,10 +446,10 @@ def test11():
                 G11_EXP_IRB2]:
         G11_EXP_cfg.add_irblock(irb)
 
-    check_results(G11_cfg, G11_EXP_cfg, 11)
+    check_results(G11_cfg, G11_EXP_cfg, 11, out_path)
 
 
-def test12():
+def test12(out_path):
     """Graph with multiple out points and useless definitions of return register"""
     G12_cfg = Lifter.new_ircfg()
 
@@ -484,10 +485,10 @@ def test12():
                 G12_EXP_IRB4, G12_EXP_IRB5]:
         G12_EXP_cfg.add_irblock(irb)
 
-    check_results(G12_cfg, G12_EXP_cfg, 12)
+    check_results(G12_cfg, G12_EXP_cfg, 12, out_path)
 
 
-def test13():
+def test13(out_path):
     """Graph where leaf has lost its son"""
     G13_cfg = Lifter.new_ircfg()
 
@@ -521,10 +522,10 @@ def test13():
 
     #G13_EXP_cfg = G13_cfg
 
-    check_results(G13_cfg, G13_EXP_cfg, 13)
+    check_results(G13_cfg, G13_EXP_cfg, 13, out_path)
 
 
-def test14():
+def test14(out_path):
     """Graph where variable assigned multiple times in a block but still useful in the end"""
     G14_cfg = Lifter.new_ircfg()
 
@@ -547,10 +548,10 @@ def test14():
     for irb in [G14_EXP_IRB0, G14_EXP_IRB1]:
         G14_EXP_cfg.add_irblock(irb)
 
-    check_results(G14_cfg, G14_EXP_cfg, 14)
+    check_results(G14_cfg, G14_EXP_cfg, 14, out_path)
 
 
-def test15():
+def test15(out_path):
     """Graph where variable assigned multiple times and read at the same time, but useless"""
     G15_cfg = Lifter.new_ircfg()
 
@@ -573,10 +574,10 @@ def test15():
     for irb in [G15_EXP_IRB0, G15_EXP_IRB1]:
         G15_EXP_cfg.add_irblock(irb)
 
-    check_results(G15_cfg, G15_EXP_cfg, 15)
+    check_results(G15_cfg, G15_EXP_cfg, 15, out_path)
 
 
-def test16():
+def test16(out_path):
     """Graph where variable assigned multiple times in the same block"""
     G16_cfg = Lifter.new_ircfg()
 
@@ -605,10 +606,10 @@ def test16():
     for irb in [G16_EXP_IRB0, G16_EXP_IRB1]:
         G16_EXP_cfg.add_irblock(irb)
 
-    check_results(G16_cfg, G16_EXP_cfg, 16)
+    check_results(G16_cfg, G16_EXP_cfg, 16, out_path)
 
 
-def test17():
+def test17(out_path):
     """Parallel IR"""
     G17_cfg = Lifter.new_ircfg()
 
@@ -712,15 +713,14 @@ def test17():
     for irb in [G17_EXP_IRB0]:
         G17_EXP_cfg.add_irblock(irb)
 
-    check_results(G17_cfg, G17_EXP_cfg, 17)
+    check_results(G17_cfg, G17_EXP_cfg, 17, out_path)
 
 
-def check_results(actual, expected, test_nb):
+def check_results(actual, expected, test_nb, out_path: Path):
     g_ircfg = actual
     g_exp_ircfg = expected
 
-    with open("graph_%02d.dot" % test_nb, "w") as file:
-        file.write(g_ircfg.dot())
+    out_path.joinpath("graph_%02d.dot" % test_nb).write_text(g_ircfg.dot())
 
     reaching_defs = ReachingDefinitions(g_ircfg)
     defuse = DiGraphDefUse(reaching_defs, deref_mem=True)
@@ -728,8 +728,7 @@ def check_results(actual, expected, test_nb):
     # Simplify graph
     deadrm(g_ircfg)
 
-    with open("simp_graph_%02d.dot" % test_nb, "w") as file:
-        file.write(g_ircfg.dot())
+    out_path.joinpath("simp_graph_%02d.dot" % test_nb).write_text(g_ircfg.dot())
 
     assert len(g_ircfg.blocks) == len(g_exp_ircfg.blocks)
 
@@ -739,20 +738,23 @@ def check_results(actual, expected, test_nb):
 
 
 if __name__ == '__main__':
-    test1()
-    test2()
-    test3()
-    test4()
-    test5()
-    test6()
-    test7()
-    test8()
-    test9()
-    test10()
-    test11()
-    test12()
-    test13()
-    test14()
-    test15()
-    test16()
-    test17()
+    output = Path().joinpath("results")
+    output.mkdir(exist_ok=True)
+
+    test1(output)
+    test2(output)
+    test3(output)
+    test4(output)
+    test5(output)
+    test6(output)
+    test7(output)
+    test8(output)
+    test9(output)
+    test10(output)
+    test11(output)
+    test12(output)
+    test13(output)
+    test14(output)
+    test15(output)
+    test16(output)
+    test17(output)

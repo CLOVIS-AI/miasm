@@ -1,4 +1,6 @@
 """ Test cases for dead code elimination"""
+from pathlib import Path
+
 from future.utils import viewvalues
 
 from miasm.expression.expression import ExprId, ExprInt, ExprAssign, ExprMem, \
@@ -101,7 +103,7 @@ IRA = IRATest(loc_db)
 END = ExprId("END", IRDst.size)
 
 
-def test0():
+def test0(out_path):
     G0_IRA = IRA.new_ircfg()
 
     G0_IRB0 = gen_irblock(LBL0, [
@@ -124,10 +126,10 @@ def test0():
     for irb in [G0_IRB0, G0_IRB1, G0_IRB2]:
         G0_IRA.add_irblock(irb)
 
-    check(0, G0_IRA)
+    check(0, G0_IRA, out_path)
 
 
-def test1():
+def test1(out_path):
     G1_IRA = IRA.new_ircfg()
 
     G1_IRB0 = gen_irblock(LBL0, [
@@ -154,10 +156,10 @@ def test1():
     for irb in [G1_IRB0, G1_IRB1, G1_IRB2, G1_IRB3]:
         G1_IRA.add_irblock(irb)
 
-    check(1, G1_IRA)
+    check(1, G1_IRA, out_path)
 
 
-def test2():
+def test2(out_path):
     G2_IRA = IRA.new_ircfg()
 
     G2_IRB0 = gen_irblock(LBL0, [
@@ -184,10 +186,10 @@ def test2():
     for irb in [G2_IRB0, G2_IRB1, G2_IRB2]:
         G2_IRA.add_irblock(irb)
 
-    check(2, G2_IRA)
+    check(2, G2_IRA, out_path)
 
 
-def test3():
+def test3(out_path):
     G3_IRA = IRA.new_ircfg()
 
     G3_IRB0 = gen_irblock(LBL0, [
@@ -237,10 +239,10 @@ def test3():
     for irb in [G3_IRB0, G3_IRB1, G3_IRB2, G3_IRB3, G3_IRB5]:
         G3_IRA.add_irblock(irb)
 
-    check(3, G3_IRA)
+    check(3, G3_IRA, out_path)
 
 
-def test4():
+def test4(out_path):
     G4_IRA = IRA.new_ircfg()
 
     G4_IRB0 = gen_irblock(LBL0, [
@@ -284,10 +286,10 @@ def test4():
     for irb in [G4_IRB0, G4_IRB1, G4_IRB2, G4_IRB3, G4_IRB4, G4_IRB5]:
         G4_IRA.add_irblock(irb)
 
-    check(4, G4_IRA)
+    check(4, G4_IRA, out_path)
 
 
-def test5():
+def test5(out_path):
     G5_IRA = IRA.new_ircfg()
 
     G5_IRB0 = gen_irblock(LBL0, [
@@ -317,10 +319,10 @@ def test5():
     for irb in [G5_IRB0, G5_IRB1, G5_IRB2]:
         G5_IRA.add_irblock(irb)
 
-    check(5, G5_IRA)
+    check(5, G5_IRA, out_path)
 
 
-def test6():
+def test6(out_path):
     G6_IRA = IRA.new_ircfg()
 
     G6_IRB0 = gen_irblock(LBL0, [
@@ -373,10 +375,10 @@ def test6():
     for irb in [G6_IRB0, G6_IRB1, G6_IRB2, G6_IRB3, G6_IRB4, G6_IRB5]:
         G6_IRA.add_irblock(irb)
 
-    check(6, G6_IRA)
+    check(6, G6_IRA, out_path)
 
 
-def test7():
+def test7(out_path):
     G7_IRA = IRA.new_ircfg()
 
     G7_IRB0 = gen_irblock(LBL0, [
@@ -418,10 +420,10 @@ def test7():
     for irb in [G7_IRB0, G7_IRB1, G7_IRB2, G7_IRB3, G7_IRB4, G7_IRB5]:
         G7_IRA.add_irblock(irb)
 
-    check(7, G7_IRA)
+    check(7, G7_IRA, out_path)
 
 
-def test8():
+def test8(out_path):
     G8_IRA = IRA.new_ircfg()
 
     G8_IRB0 = gen_irblock(LBL0, [
@@ -494,10 +496,10 @@ def test8():
     for irb in [G8_IRB0, G8_IRB1, G8_IRB2, G8_IRB3, G8_IRB7]:
         G8_IRA.add_irblock(irb)
 
-    check(8, G8_IRA)
+    check(8, G8_IRA, out_path)
 
 
-def test9():
+def test9(out_path):
     G9_IRA = IRA.new_ircfg()
 
     G9_IRB0 = gen_irblock(LBL0, [
@@ -519,10 +521,10 @@ def test9():
     for irb in [G9_IRB0, G9_IRB1, G9_IRB2]:
         G9_IRA.add_irblock(irb)
 
-    check(9, G9_IRA)
+    check(9, G9_IRA, out_path)
 
 
-def test10():
+def test10(out_path):
     G10_IRA = IRA.new_ircfg()
 
     G10_IRB0 = gen_irblock(LBL0, [
@@ -547,7 +549,7 @@ def test10():
     for irb in [G10_IRB0, G10_IRB1, G10_IRB2]:
         G10_IRA.add_irblock(irb)
 
-    check(10, G10_IRA)
+    check(10, G10_IRA, out_path)
 
 
 class IRAOutRegs(IRATest):
@@ -581,9 +583,8 @@ class CustomIRCFGSimplifierSSA(IRCFGSimplifierSSA):
         return regs
 
 
-def check(test_nb, ircfg):
-    with open('graph_%d.dot' % test_nb, 'w') as file:
-        file.write(ircfg.dot())
+def check(test_nb, ircfg, out_path):
+    out_path.joinpath('graph_%d.dot' % test_nb).write_text(ircfg.dot())
 
     # Save a copy of ircfg
     ircfg_orig = IRCFG(IRDst, loc_db)
@@ -594,21 +595,24 @@ def check(test_nb, ircfg):
     head = LBL0
     simplifier = CustomIRCFGSimplifierSSA(lifter)
     ircfg = simplifier(ircfg, head)
-    with open('final_%d.dot' % test_nb, 'w') as file:
-        file.write(ircfg.dot())
+
+    out_path.joinpath('final_%d.dot' % test_nb).write_text(ircfg.dot())
 
     # TODO: add real regression test
 
 
 if __name__ == '__main__':
-    test0()
-    test1()
-    test2()
-    test3()
-    test4()
-    test5()
-    test6()
-    test7()
-    test8()
-    test9()
-    test10()
+    output = Path().joinpath("results")
+    output.mkdir(exist_ok=True)
+
+    test0(output)
+    test1(output)
+    test2(output)
+    test3(output)
+    test4(output)
+    test5(output)
+    test6(output)
+    test7(output)
+    test8(output)
+    test9(output)
+    test10(output)

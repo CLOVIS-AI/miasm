@@ -1,6 +1,8 @@
 """Regression test module for DependencyGraph"""
 from __future__ import print_function
 
+from pathlib import Path
+
 from future.utils import viewitems
 
 from miasm.expression.expression import ExprId, ExprInt, ExprAssign, ExprCond, ExprLoc
@@ -95,7 +97,7 @@ def gen_irblock(label, exprs_list):
 IRA = IRATest(loc_db)
 
 
-def test1():
+def test1(out_path):
     # Input
     G1 = IRA.new_ircfg()
 
@@ -151,10 +153,10 @@ def test1():
     for irb in [G1_RES_IRB0]:
         G1_RES.add_irblock(irb)
 
-    check(1, G1, G1_RES)
+    check(1, G1, G1_RES, out_path)
 
 
-def test2():
+def test2(out_path):
     # Input
 
     G2 = IRA.new_ircfg()
@@ -197,10 +199,10 @@ def test2():
     for irb in [G2_RES_IRB0]:
         G2_RES.add_irblock(irb)
 
-    check(2, G2, G2_RES)
+    check(2, G2, G2_RES, out_path)
 
 
-def test3():
+def test3(out_path):
     # Input
 
     G3 = IRA.new_ircfg()
@@ -256,10 +258,10 @@ def test3():
     for irb in [G3_RES_IRB0]:
         G3_RES.add_irblock(irb)
 
-    check(3, G3, G3_RES)
+    check(3, G3, G3_RES, out_path)
 
 
-def test4():
+def test4(out_path):
     # Input
 
     G4 = IRA.new_ircfg()
@@ -324,10 +326,10 @@ def test4():
     for irb in [G4_RES_IRB0, G4_RES_IRB1]:
         G4_RES.add_irblock(irb)
 
-    check(4, G4, G4_RES)
+    check(4, G4, G4_RES, out_path)
 
 
-def test5():
+def test5(out_path):
     # Input
 
     G5 = IRA.new_ircfg()
@@ -412,10 +414,10 @@ def test5():
     for irb in [G5_RES_IRB0, G5_RES_IRB1, G5_RES_IRB3]:
         G5_RES.add_irblock(irb)
 
-    check(5, G5, G5_RES)
+    check(5, G5, G5_RES, out_path)
 
 
-def test6():
+def test6(out_path):
     # Input
 
     G6 = IRA.new_ircfg()
@@ -496,10 +498,10 @@ def test6():
     for irb in [G6_RES_IRB0, G6_RES_IRB2, G6_RES_IRB3]:
         G6_RES.add_irblock(irb)
 
-    check(6, G6, G6_RES)
+    check(6, G6, G6_RES, out_path)
 
 
-def test7():
+def test7(out_path):
     # Input
 
     G7 = IRA.new_ircfg()
@@ -551,10 +553,10 @@ def test7():
     for irb in [G7_RES_IRB0, G7_RES_IRB1]:
         G7_RES.add_irblock(irb)
 
-    check(7, G7, G7_RES)
+    check(7, G7, G7_RES, out_path)
 
 
-def test8():
+def test8(out_path):
     # Input
 
     G8 = IRA.new_ircfg()
@@ -606,15 +608,15 @@ def test8():
     for irb in [G8_RES_IRB0, G8_RES_IRB1]:
         G8_RES.add_irblock(irb)
 
-    check(8, G8, G8_RES)
+    check(8, G8, G8_RES, out_path)
 
 
-def check(i, g_test, g_ref):
+def check(i, g_test, g_ref, out_path: Path):
     heads = g_test.heads()
-    open('test_in_%d.dot' % i, 'w').write(g_test.dot())
-    open('test_ref_%d.dot' % i, 'w').write(g_ref.dot())
+    out_path.joinpath("test_in_%d.dot" % i).write_text(g_test.dot())
+    out_path.joinpath("test_ref_%d.dot" % i).write_text(g_ref.dot())
     merge_blocks(g_test, heads)
-    open('test_out_%d.dot' % i, 'w').write(g_test.dot())
+    out_path.joinpath("test_out_%d.dot" % i).write_text(g_test.dot())
 
     assert g_test == g_ref
     assert set(g_test.edges()) == set(g_ref.edges())

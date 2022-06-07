@@ -42,6 +42,7 @@ ExprCompose(var1, 0) => var1
 from __future__ import print_function
 
 import sys
+from pathlib import Path
 
 from future.utils import viewvalues
 
@@ -115,7 +116,7 @@ class MyCHandler(CHandler):
     exprToAccessC_cls = MyExprToAccessC
 
 
-def access_c(input_path):
+def access_c(input_path, output):
     loc_db = LocationDB()
     data = open(input_path, 'rb').read()
     # Digest C information
@@ -152,7 +153,7 @@ def access_c(input_path):
     lifter = lifter_model_call(loc_db)
     ircfg = lifter.new_ircfg_from_asmcfg(asmcfg)
 
-    open('../graph_irflow.dot', 'w').write(ircfg.dot())
+    output.joinpath("graph_irflow.dot").write_text(ircfg.dot())
 
     # Main function's first argument's type is "struct ll_human*"
     ptr_llhuman = types_mngr.get_objc(CTypePtr(CTypeStruct('ll_human')))
@@ -171,4 +172,4 @@ def access_c(input_path):
 
 
 if __name__ == '__main__':
-    access_c(sys.argv[1])
+    access_c(sys.argv[1], Path())

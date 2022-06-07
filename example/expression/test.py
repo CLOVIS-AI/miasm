@@ -13,17 +13,17 @@ from .expr_reduce import tests, check as check_expr_reduce
 current_path = os.path.dirname(__file__)
 
 
-def test_access_c(shellcode_human):
+def test_access_c(shellcode_human, out_path):
     human_bin, _ = shellcode_human
 
     from .access_c import access_c
-    access_c(human_bin)
+    access_c(human_bin, out_path)
 
 
-def test_asm_to_ir():
+def test_asm_to_ir(out_path):
     from .asm_to_ir import main
 
-    main()
+    main(out_path)
 
 
 def test_basic_op():
@@ -37,20 +37,20 @@ def test_basic_simplification(e):
     check_basic_simplification(e)
 
 
-def test_constant_propagation():
+def test_constant_propagation(out_path):
     input = os.path.join(current_path, "..", "samples", "simple_test.bin")
 
     from .constant_propagation import constant_propagation
-    constant_propagation(input, "0", simplify=True)
+    constant_propagation(input, "0", simplify=True, output=out_path)
 
 
-def test_export_llvm():
+def test_export_llvm(out_path):
     pytest.importorskip("llvmlite")
 
     input = os.path.join(current_path, "..", "samples", "simple_test.bin")
 
     from .export_llvm import export
-    export(input, "x86_32", "0")
+    export(input, "x86_32", "0", out_path)
 
 
 @pytest.mark.parametrize("c_str", c_acceses)
@@ -95,8 +95,8 @@ def test_simplification_tools():
     main()
 
 
-def test_solve_condition_stp():
+def test_solve_condition_stp(out_path):
     input = os.path.join(current_path, "..", "samples", "simple_test.bin")
 
     from .solve_condition_stp import solve
-    solve(input, "0")
+    solve(input, "0", out_path)
