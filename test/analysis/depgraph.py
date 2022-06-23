@@ -3,7 +3,6 @@
 from __future__ import print_function
 
 import re
-from itertools import count
 from pathlib import Path
 from typing import Tuple, Any, Iterable
 
@@ -29,13 +28,6 @@ variant_parameters = [(variant,) for variant in variants]
 
 loc_db = LocationDB()
 
-EMULATION = True
-try:
-    import z3
-except ImportError:
-    EMULATION = False
-
-STEP_COUNTER = count()
 A = ExprId("a", 32)
 B = ExprId("b", 32)
 C = ExprId("c", 32)
