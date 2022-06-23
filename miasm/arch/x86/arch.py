@@ -901,6 +901,10 @@ class mn_x86(cls_mn):
         self.prefix = pre_dis_info['prefix']
         return True
 
+    @classmethod
+    def getbits(cls, bs, attrib, offset, offset_bit, size):
+        return bs.get_bits(offset, offset_bit, size)
+
     def post_asm(self, v):
         return v
 

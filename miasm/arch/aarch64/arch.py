@@ -1,21 +1,16 @@
 #-*- coding:utf-8 -*-
 
-from builtins import range
-from future.utils import viewitems, viewvalues
-
-import logging
-from pyparsing import *
-from miasm.expression import expression as m2_expr
-from miasm.core.cpu import *
 from collections import defaultdict
-from miasm.core.bin_stream import bin_stream
+
+from pyparsing import *
+
 from miasm.arch.aarch64 import regs as regs_module
 from miasm.arch.aarch64.regs import *
-from miasm.core.cpu import log as log_cpu
-from miasm.core.modint import mod_size2int
-from miasm.core.asm_ast import AstInt, AstId, AstMem, AstOp
-from miasm.ir.ir import color_expr_html
 from miasm.core import utils
+from miasm.core.asm_ast import AstInt, AstId, AstOp
+from miasm.core.cpu import *
+from miasm.core.modint import mod_size2int
+from miasm.ir.ir import color_expr_html
 
 log = logging.getLogger("aarch64dis")
 console_handler = logging.StreamHandler()
@@ -524,37 +519,8 @@ class mn_aarch64(cls_mn):
         return info
 
     @classmethod
-    def getbits(cls, bs, attrib, offset, offset_bit, size):
-        if not size:
-            return 0
-
-        start = offset * 8 + offset_bit
-        o = 0
-        while size:
-            offset = start // 8
-            n_offset = cls.endian_offset(attrib, offset)
-            c = cls.getbytes(bs, n_offset, 1)
-            if not c:
-                raise IOError
-            c = ord(c)
-            r = 8 - start % 8
-            c &= (1 << r) - 1
-            l = min(r, size)
-            c >>= (r - l)
-            o <<= l
-            o |= c
-            size -= l
-            start += l
-        return o
-
-    @classmethod
     def endian_offset(cls, attrib, offset):
-        if attrib == "l":
-            return (offset & ~3) + 3 - offset % 4
-        elif attrib == "b":
-            return offset
-        else:
-            raise NotImplementedError('bad attrib')
+        return cls.endian_offset_u8(attrib, offset)
 
     @classmethod
     def check_mnemo(cls, fields):

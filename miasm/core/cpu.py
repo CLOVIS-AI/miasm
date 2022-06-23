@@ -4,6 +4,7 @@ import re
 import struct
 import logging
 from collections import defaultdict
+from math import ceil
 from typing import List, Optional as Option, Set, Dict
 
 from future.utils import viewitems, viewvalues
@@ -1151,12 +1152,55 @@ class cls_mn(with_metaclass(metamn, object)):
         return True
 
     @classmethod
-    def getbits(cls, bs, attrib, offset, offset_bit, l):
-        return bs.get_bits(offset, offset_bit, l)
+    def getbits(cls, bs, attrib, offset, offset_bit, size):
+        if not size:
+            return 0
+
+        first_byte = offset + (offset_bit // 8)
+        first_bit_in_first_byte = offset_bit % 8
+        number_bytes_to_read = ceil((size + first_bit_in_first_byte) / 8)
+
+        # Read all bytes in a single step
+        endian_offset = cls.endian_offset(attrib, first_byte)
+        endian_offset = endian_offset if attrib == "b" else endian_offset - number_bytes_to_read + 1
+        data = cls.getbytes(bs, endian_offset, number_bytes_to_read)
+        number = cls.convert_endian(attrib, data)
+
+        # Remove the leading bits that we don't care about (if any)
+        if first_bit_in_first_byte != 0:
+            mask = (1 << ((number_bytes_to_read * 8) - first_bit_in_first_byte)) - 1
+            number &= mask
+
+        # Remove the trailing bits that we don't care about (if any)
+        number >>= (8 - (size % 8) - first_bit_in_first_byte) % 8
+
+        return number
 
     @classmethod
     def getbytes(cls, bs, offset, l):
         return bs.get_bytes_exact(offset, l)
+
+    @classmethod
+    def endian_offset(cls, attrib, offset):
+        raise NotImplementedError("cls_mn.endian_offset is an abstract method")
+
+    @classmethod
+    def endian_offset_u8(cls, attrib, offset):
+        if attrib == "l":
+            return (offset & ~3) + 3 - offset % 4
+        elif attrib == "b":
+            return offset
+        else:
+            raise NotImplementedError("bad attribute: " + repr(attrib))
+
+    @classmethod
+    def convert_endian(cls, attrib, value):
+        if attrib == "l":
+            return int.from_bytes(value, byteorder="little", signed=False)
+        elif attrib == "b":
+            return int.from_bytes(value, byteorder="big", signed=False)
+        else:
+            raise NotImplementedError("bad attribute: " + repr(attrib))
 
     @classmethod
     def pre_dis(cls, v_o, attrib, offset):

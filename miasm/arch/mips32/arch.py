@@ -6,7 +6,6 @@ from collections import defaultdict
 from pyparsing import Literal, Optional
 
 from miasm.expression.expression import ExprMem, ExprInt, ExprId, ExprOp, ExprLoc
-from miasm.core.bin_stream import bin_stream
 import miasm.arch.mips32.regs as regs
 import miasm.core.cpu as cpu
 from miasm.ir.ir import color_expr_html
@@ -211,37 +210,8 @@ class mn_mips32(cpu.cls_mn):
         return info
 
     @classmethod
-    def getbits(cls, bitstream, attrib, offset, offset_bits, size):
-        if not size:
-            return 0
-
-        start = offset * 8 + offset_bits
-        o = 0
-        while size:
-            offset = start // 8
-            n_offset = cls.endian_offset(attrib, offset)
-            c = cls.getbytes(bitstream, n_offset, 1)
-            if not c:
-                raise IOError
-            c = ord(c)
-            r = 8 - start % 8
-            c &= (1 << r) - 1
-            l = min(r, size)
-            c >>= (r - l)
-            o <<= l
-            o |= c
-            size -= l
-            start += l
-        return o
-
-    @classmethod
     def endian_offset(cls, attrib, offset):
-        if attrib == "l":
-            return (offset & ~3) + 3 - offset % 4
-        elif attrib == "b":
-            return offset
-        else:
-            raise NotImplementedError('bad attrib')
+        return cls.endian_offset_u8(attrib, offset)
 
     @classmethod
     def check_mnemo(cls, fields):
