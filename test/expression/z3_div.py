@@ -10,8 +10,8 @@ from miasm.expression.expression import *
     (-42, -10, 4, -2)
 ])
 def test(a, b, c, d):
-    z3 = pytest.importorskip("z3")
-    translator = Translator.to_language_or_skip_test("z3")
+    import z3
+    translator = Translator.to_language("z3")
 
     cst_a = ExprInt(a, 8)
     cst_b = ExprInt(b, 8)

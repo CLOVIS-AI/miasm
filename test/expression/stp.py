@@ -6,7 +6,7 @@ from miasm.ir.translators.translator import Translator
 
 @pytest.fixture
 def translator_smt2():
-    return Translator.to_language_or_skip_test("smt2")
+    return Translator.to_language("smt2")
 
 
 def test_op_strcst(translator_smt2):

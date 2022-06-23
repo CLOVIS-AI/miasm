@@ -33,18 +33,6 @@ class Translator(object):
         raise NotImplementedError("Unknown target language: %s" % target_lang)
 
     @classmethod
-    def to_language_or_skip_test(cls, target_lang, *args, **kwargs):
-        """Convenience methods for tests
-        Same behavior as 'to_language', except that it skips the current test if missing instead of raising a NotImplementedError.
-        """
-        import pytest
-
-        try:
-            return cls.to_language(target_lang, *args, **kwargs)
-        except NotImplementedError as error:
-            pytest.skip(error)
-
-    @classmethod
     def available_languages(cls):
         "Return the list of registered languages"
         return [translator.__LANG__ for translator in cls.available_translators]

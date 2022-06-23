@@ -10,12 +10,12 @@ loc_db = LocationDB()
 
 @pytest.fixture
 def translator1():
-    return Translator.to_language_or_skip_test("z3", endianness="<", loc_db=loc_db)
+    return Translator.to_language("z3", endianness="<", loc_db=loc_db)
 
 
 @pytest.fixture
 def translator2():
-    return Translator.to_language_or_skip_test("z3", endianness=">", loc_db=loc_db)
+    return Translator.to_language("z3", endianness=">", loc_db=loc_db)
 
 
 @pytest.fixture

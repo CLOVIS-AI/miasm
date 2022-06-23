@@ -1,5 +1,5 @@
+import builtins
 import os
-from pathlib import Path
 
 import pytest
 
@@ -18,7 +18,8 @@ def _run_shellcode(input, arch, output, generate_pe=False, encrypt=None):
     yield path, arch
 
     if os.path.exists(path) and os.environ.get("miasm_keep_shellcodes") is None:
-        print("Removing generated file <", path, ">. To keep it, create the environment variable 'miasm_keep_shellcodes'.")
+        print("Removing generated file <", path,
+              ">. To keep it, create the environment variable 'miasm_keep_shellcodes'.")
         os.remove(path)
 
 
@@ -241,14 +242,6 @@ def translator(request):
     return request.param()
 
 
-def z3():
-    return pytest.importorskip("z3")
-
-
-def translator_z3():
-    return Translator.to_language_or_skip_test("z3")
-
-
 # endregion
 # region Output
 
@@ -269,5 +262,42 @@ def out_path(pytestconfig, request):
     print("Files will be generated in", test_out.absolute())
 
     return test_out
+
+
+# endregion
+# region Optional dependencies
+# When PyTest is running, if we try to import something listed in the optional dependencies, we want to skip the test
+# instead of failing it.
+
+original_import = builtins.__import__
+
+
+def import_or_automatically_skip(name, globals=None, locals=None, fromlist=(), level=0):
+    def real_import():
+        return original_import(name, globals, locals, fromlist, level)
+
+    # (module_name, pip_install_name)
+    optional_dependencies = {
+        "z3": "z3-solver",
+        "pycparser": "pycparser",
+        "llvmlite": "llvmlite",
+    }
+
+    if name in optional_dependencies:
+        try:
+            return real_import()
+        except ImportError as e:
+            trace = "Traceback (most recent first):\n"
+            frame = e.__traceback__.tb_frame.f_back
+            while frame is not None:
+                trace += str(frame) + "\n"
+                frame = frame.f_back
+
+            pytest.skip(name + " is not installed, use 'pip install " + optional_dependencies[name] + "'.\n\n" + trace, allow_module_level=True)
+    else:
+        return real_import()
+
+
+builtins.__import__ = import_or_automatically_skip
 
 # endregion

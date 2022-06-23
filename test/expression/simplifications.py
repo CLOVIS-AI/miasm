@@ -832,11 +832,11 @@ def test_cond(e_input, e_check):
 
 
 def test_assumptions_z3():
-    z3 = pytest.importorskip("z3")
+    import z3
 
     # This check is done on 32 bits, but the size is not use by Miasm formulas, so
     # it should be OK for any size > 0
-    trans = Translator.to_language_or_skip_test("z3")
+    trans = Translator.to_language("z3")
 
     x1 = ExprId("x1", 32)
     x2 = ExprId("x2", 32)

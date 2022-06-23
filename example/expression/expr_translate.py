@@ -36,7 +36,7 @@ def memory(addr, size):
 
 
 def test_python():
-    python = Translator.to_language_or_skip_test("python")
+    python = Translator.to_language("python")
     print("Expression:", expr)
     target_expr = python.from_expr(expr)
     print("Target:    ", target_expr)
@@ -51,7 +51,7 @@ def test_python():
 
 
 def test_miasm():
-    m = Translator.to_language_or_skip_test("miasm")
+    m = Translator.to_language("miasm")
     target_expr = m.from_expr(expr)
 
     print("[+] Validate the Miasm syntax rebuilding")

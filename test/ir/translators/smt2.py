@@ -4,9 +4,9 @@ from miasm.ir.translators.translator import Translator
 
 
 def test():
-    z3 = pytest.importorskip("z3")
-    t_z3 = Translator.to_language_or_skip_test("z3")
-    t_smt2 = Translator.to_language_or_skip_test("smt2")
+    import z3
+    t_z3 = Translator.to_language("z3")
+    t_smt2 = Translator.to_language("smt2")
 
     # create nested expression
     a = ExprId("a", 64)

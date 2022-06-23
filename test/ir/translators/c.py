@@ -7,7 +7,7 @@ from miasm.ir.translators import Translator
 
 @pytest.fixture
 def translator():
-    return Translator.to_language_or_skip_test("C")
+    return Translator.to_language("C")
 
 
 def test_unary_to_c(translator):
