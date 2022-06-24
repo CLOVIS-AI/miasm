@@ -596,6 +596,7 @@ Some options can be specified:
 * Debugging: `--pdb` to start the Python Debugger (PDB) on the first test failure, `--trace` to start PDB at the beginning of all tests
 * Code coverage instrumentation: `--cov=miasm` to measure coverage for the whole project, `--cov=miasm.core` to only measure coverage for that package (add this parameter multiple times to select multiple packages)
 * Traceback options: by default, PyTest displays each failed function call along with its parameters and explains why an assertion failed. Use `--tb=native` to use the regular Python traceback instead, and `--tb=no` to display the exception message without any traceback.
+* Markers: some tests are marked with markers. Use `pytest --markers` to list the available markers. Use `-m "<marker_name>"` to execute all tests with this marker, and `-m "not <marker_name>"` to skip all tests with this marker.
 
 
 They already use Miasm

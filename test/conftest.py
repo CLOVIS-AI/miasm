@@ -217,18 +217,19 @@ def sample_test_i386():
 # endregion
 # region Jitters
 
-@pytest.fixture(params=["gcc", "llvm", "python", "llvm_rs"])
+@pytest.fixture(params=[
+    pytest.param("gcc", marks=[pytest.mark.jitter_gcc, pytest.mark.jitter]),
+    pytest.param("llvm", marks=[pytest.mark.jitter_llvm, pytest.mark.jitter]),
+    pytest.param("python", marks=[pytest.mark.jitter_python, pytest.mark.jitter]),
+    pytest.param("llvm_rs", marks=[pytest.mark.jitter_llvm_rs, pytest.mark.jitter]),
+])
 def jitter_name(request):
     """The name of each available Jitter (parameterized)."""
     jitter = request.param  # type: str
 
-    var = "miasm_jitter_no_" + jitter
-
-    if os.environ.get(var) is not None:
-        pytest.skip("Skipping the jitter " + jitter + " because the environment variable '" + var + "' exists.")
-    else:
-        print("Using jitter: ", jitter)
-        print("To skip all tests using this jitter, create the environment variable", var)
+    print("Using jitter", jitter)
+    print("To skip all tests using this jitter, run with '-m \"not jitter_%s\"'" % jitter)
+    print("To skip all tests using any jitter, run with '-m \"not jitter\"'")
 
     return jitter
 
