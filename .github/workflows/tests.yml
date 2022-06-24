@@ -38,7 +38,7 @@ jobs:
       uses: ./.github/actions/install
 
     - name: Tests
-      run: cd test; pytest -n auto && git ls-files -o --exclude-standard
+      run: cd test; pytest -n auto --with-z3 --with-pycparser --with-llvmlite && git ls-files -o --exclude-standard
 
     - name: Loader tests
       run: cd example/loader; python --version |& grep -q "Python 3" || flags="-W error"; for i in ../../miasm-extended-tests/loader/dll_win_xp/*.dll; do python get_exports.py $i; done
