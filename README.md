@@ -597,6 +597,7 @@ Some options can be specified:
 * Code coverage instrumentation: `--cov=miasm` to measure coverage for the whole project, `--cov=miasm.core` to only measure coverage for that package (add this parameter multiple times to select multiple packages)
 * Traceback options: by default, PyTest displays each failed function call along with its parameters and explains why an assertion failed. Use `--tb=native` to use the regular Python traceback instead, and `--tb=no` to display the exception message without any traceback.
 * Markers: some tests are marked with markers. Use `pytest --markers` to list the available markers. Use `-m "<marker_name>"` to execute all tests with this marker, and `-m "not <marker_name>"` to skip all tests with this marker.
+* Optional dependencies: by default, tests attempting to import a missing dependency are marked as skipped instead of failed. To consider them failure, add the `--with-<dependency>` argument (see `pytest --help` for the full list).
 
 
 They already use Miasm

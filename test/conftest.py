@@ -10,6 +10,24 @@ from .examples.asm.shellcode import shellcode_sample
 # PyTest configuration file
 # Fixtures created here can be used in all tests
 
+# region CLI
+
+def pytest_addoption(parser):
+    for dep in optional_dependencies:
+        parser.addoption("--with-%s" % dep, action="store_true", help="Execute as if %s was not an optional dependency: fail tests if %s is missing instead of skipping them" % (dep, dep))
+
+
+def pytest_configure(config):
+    global optional_dependencies
+
+    options = vars(config.option)
+
+    for dep in list(optional_dependencies.keys()):
+        if options["with_%s" % dep]:
+            del optional_dependencies[dep]
+
+
+# endregion
 # region Shellcode generation
 
 
@@ -270,19 +288,18 @@ def out_path(pytestconfig, request):
 # When PyTest is running, if we try to import something listed in the optional dependencies, we want to skip the test
 # instead of failing it.
 
+# (module_name, pip_install_name)
+optional_dependencies = {
+    "z3": "z3-solver",
+    "pycparser": "pycparser",
+    "llvmlite": "llvmlite",
+}
 original_import = builtins.__import__
 
 
 def import_or_automatically_skip(name, globals=None, locals=None, fromlist=(), level=0):
     def real_import():
         return original_import(name, globals, locals, fromlist, level)
-
-    # (module_name, pip_install_name)
-    optional_dependencies = {
-        "z3": "z3-solver",
-        "pycparser": "pycparser",
-        "llvmlite": "llvmlite",
-    }
 
     if name in optional_dependencies:
         try:
