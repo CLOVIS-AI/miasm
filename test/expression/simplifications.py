@@ -13,13 +13,9 @@ log_exprsimp.setLevel(logging.DEBUG)
 
 def check(expr_in, expr_out):
     """Check that expr_in is always equals to expr_out"""
-    z3 = pytest.importorskip("z3")
+    import z3
 
-    try:
-        trans = Translator.to_language("z3")
-    except NotImplementedError as error:
-        pytest.skip("The z3 translator is not available: " + str(error))
-        return
+    trans = Translator.to_language("z3")
 
     print("Ensure %s = %s" % (expr_in, expr_out))
     solver = z3.Solver()

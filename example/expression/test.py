@@ -45,7 +45,7 @@ def test_constant_propagation(out_path):
 
 
 def test_export_llvm(out_path):
-    pytest.importorskip("llvmlite")
+    import llvmlite
 
     input = os.path.join(current_path, "..", "samples", "simple_test.bin")
 

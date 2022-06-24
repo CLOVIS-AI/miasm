@@ -18,20 +18,17 @@ def translator2():
     return Translator.to_language("z3", endianness=">", loc_db=loc_db)
 
 
-@pytest.fixture
-def z3():
-    return pytest.importorskip("z3")
-
-
 def equiv(z3_expr1, z3_expr2):
-    z3 = pytest.importorskip("z3")
+    import z3
 
     s = z3.Solver()
     s.add(z3.Not(z3_expr1 == z3_expr2))
     return s.check() == z3.unsat
 
 
-def test_equiv(z3):
+def test_equiv():
+    import z3
+
     equiv(z3.BitVec('a', 32) + z3.BitVecVal(3, 32) - z3.BitVecVal(1, 32),
           z3.BitVec('a', 32) + z3.BitVecVal(2, 32))
 
@@ -40,7 +37,7 @@ def check_interp(interp, constraints, bits=32, valbits=8):
     """Checks that a list of @constraints (addr, value) (as python ints)
     match a z3 FuncInterp (@interp).
     """
-    z3 = pytest.importorskip("z3")
+    import z3
 
     constraints = dict((addr,
                         z3.BitVecVal(val, valbits))
@@ -53,7 +50,9 @@ def check_interp(interp, constraints, bits=32, valbits=8):
     assert equiv(value, constraints[addr])
 
 
-def test_z3mem(z3):
+def test_z3mem():
+    import z3
+
     mem = Z3Mem(endianness='<')  # little endian
     eax = z3.BitVec('EAX', 32)
     assert equiv(
@@ -77,7 +76,8 @@ five = ExprInt(5, 32)
 e2 = (e + five + four) * five
 
 
-def test_translator(z3, translator1, translator2):
+def test_translator(translator1, translator2):
+    import z3
     ez3 = translator1.from_expr(e)
 
     z3_e = z3.BitVec('x', 32)
@@ -147,7 +147,9 @@ one0seven = ExprInt(0x107, 32)
     (seven, 0),
     (one0seven, 0)
 ])
-def test_parity(z3, translator1, miasm_int, res):
+def test_parity(translator1, miasm_int, res):
+    import z3
+
     e6 = ExprOp('parity', miasm_int)
     ez3 = translator1.from_expr(e6)
     z3_e6 = z3.BitVecVal(res, 1)
@@ -158,14 +160,18 @@ def test_parity(z3, translator1, miasm_int, res):
     (five, -5),
     (four, -4)
 ])
-def test_minus(z3, translator1, miasm_int, res):
+def test_minus(translator1, miasm_int, res):
+    import z3
+
     e6 = ExprOp('-', miasm_int)
     ez3 = translator1.from_expr(e6)
     z3_e6 = z3.BitVecVal(res, 32)
     assert equiv(ez3, z3_e6)
 
 
-def test_labels(z3, translator1):
+def test_labels(translator1):
+    import z3
+
     # --------------------------------------------------------------------------
     label_histoire = loc_db.add_location("label_histoire", 0xdeadbeef)
     e7 = ExprLoc(label_histoire, 32)
@@ -181,21 +187,27 @@ def test_labels(z3, translator1):
     assert not equiv(ez3, z3_e7)
 
 
-def test_cnttrailzeros(z3, translator1):
+def test_cnttrailzeros(translator1):
+    import z3
+
     # cnttrailzeros(0x1138) == 3
     cnttrailzeros1 = translator1.from_expr(ExprOp("cnttrailzeros", ExprInt(0x1138, 32)))
     cnttrailzeros2 = z3.BitVecVal(3, 32)
     assert equiv(cnttrailzeros1, cnttrailzeros2)
 
 
-def test_cntleadzeros(z3, translator1):
+def test_cntleadzeros(translator1):
+    import z3
+
     # cntleadzeros(0x11300) == 0xf
     cntleadzeros1 = translator1.from_expr(ExprOp("cntleadzeros", ExprInt(0x11300, 32)))
     cntleadzeros2 = z3.BitVecVal(0xf, 32)
     assert equiv(cntleadzeros1, cntleadzeros2)
 
 
-def test_cnttrailzeros_cntleadzeros(z3, translator1):
+def test_cnttrailzeros_cntleadzeros(translator1):
+    import z3
+
     # cnttrailzeros(0x8000) + 1 == cntleadzeros(0x8000)
     cnttrailzeros3 = translator1.from_expr(ExprOp("cnttrailzeros", ExprInt(0x8000, 32)) + ExprInt(1, 32))
     cntleadzeros3 = translator1.from_expr(ExprOp("cntleadzeros", ExprInt(0x8000, 32)))

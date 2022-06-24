@@ -93,12 +93,8 @@ def generate_cases():
 
 @pytest.mark.parametrize("expr", generate_cases())
 def test(expr):
-    z3 = pytest.importorskip("z3")
-    try:
-        trans = Translator.to_language("z3")
-    except NotImplementedError as error:
-        pytest.skip("The z3 translator is not available: " + str(error))
-        return
+    import z3
+    trans = Translator.to_language("z3")
 
     computed_range = expr_range(expr)
     print(expr, computed_range)
