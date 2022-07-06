@@ -582,6 +582,8 @@ Testing
 Miasm comes with a set of regression tests. To run all of them:
 
 ```pycon
+pip install -r requirements.txt
+pip install -r test_requirements.txt
 cd miasm_directory/test
 python test_all.py
 ```

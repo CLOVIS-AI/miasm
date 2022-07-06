@@ -1,13 +1,14 @@
-#-*- coding:utf-8 -*-
-
+from ast import Bytes
 from builtins import range
 import re
 import struct
 import logging
 from collections import defaultdict
-
+from typing import List, Optional as Option, Set, Dict
 
 from future.utils import viewitems, viewvalues
+from future.utils import with_metaclass
+from miasm_rs import BinStream, InstructionIR
 
 import pyparsing
 
@@ -1071,6 +1072,14 @@ class instruction(object):
     def get_info(self, c):
         return
 
+    def to_ir(self):
+        # type: () -> InstructionIR
+        """Converts this instruction into an InstructionIR.
+
+        This is a temporary method that will be removed in the future when instructions will be fully migrated to Rust.
+        """
+        return InstructionIR(self.offset if self.offset is not None else 0, self.b if self.b is not None else [], self.name, self.args, str(self))
+
 
 class cls_mn(with_metaclass(metamn, object)):
     args_symb = []
@@ -1080,8 +1089,7 @@ class cls_mn(with_metaclass(metamn, object)):
 
     @classmethod
     def guess_mnemo(cls, bs, attrib, pre_dis_info, offset):
-        candidates = []
-
+        # type: (BinStream, int, Dict, int) -> Set[Bytes]
         candidates = set()
 
         fname_values = pre_dis_info
@@ -1111,7 +1119,7 @@ class cls_mn(with_metaclass(metamn, object)):
                 else:
                     todo.append((dict(fname_values), (nb, v), offset, offset_bit))
 
-        return [c for c in candidates]
+        return candidates
 
     def reset_class(self):
         for f in self.fields_order:
@@ -1176,10 +1184,11 @@ class cls_mn(with_metaclass(metamn, object)):
         return fields
 
     @classmethod
-    def dis(cls, bs_o, mode_o = None, offset=0):
-        assert isinstance(bs_o, BinStream)
-        #if not isinstance(bs_o, bin_stream):
-        #    bs_o = bin_stream_str(bs_o)
+    def dis(cls, bs_o, mode_o=None, offset=0):
+        # type: (BinStream, Option[int], int) -> List
+
+        if not isinstance(bs_o, BinStream):
+           bs_o = bin_stream_str(bs_o).get_binstream()
 
         #bs_o.enter_atomic_mode()
 

@@ -524,13 +524,13 @@ class mn_aarch64(cls_mn):
         return info
 
     @classmethod
-    def getbits(cls, bs, attrib, start, n):
-        if not n:
+    def getbits(cls, bs, attrib, offset, offset_bit, size):
+        if not size:
             return 0
+
+        start = offset * 8 + offset_bit
         o = 0
-        if n > bs.getlen() * 8:
-            raise ValueError('not enough bits %r %r' % (n, len(bs.bin) * 8))
-        while n:
+        while size:
             offset = start // 8
             n_offset = cls.endian_offset(attrib, offset)
             c = cls.getbytes(bs, n_offset, 1)
@@ -539,11 +539,11 @@ class mn_aarch64(cls_mn):
             c = ord(c)
             r = 8 - start % 8
             c &= (1 << r) - 1
-            l = min(r, n)
+            l = min(r, size)
             c >>= (r - l)
             o <<= l
             o |= c
-            n -= l
+            size -= l
             start += l
         return o
 
@@ -612,7 +612,7 @@ class aarch64_gpreg_noarg(reg_noarg):
         return True
 
     def encode(self):
-        if not test_set_sf(self.parent, self.expr.size):
+        if not check_set_sf(self.parent, self.expr.size):
             return False
         if not self.expr.size in self.gpregs_info:
             return False
@@ -633,7 +633,7 @@ class aarch64_gpreg_noarg_nosp(aarch64_gpreg_noarg):
         return True
 
     def encode(self):
-        if not test_set_sf(self.parent, self.expr.size):
+        if not check_set_sf(self.parent, self.expr.size):
             return False
         if not self.expr.size in self.gpregs_info:
             return False
@@ -754,7 +754,7 @@ class aarch64_gpreg0(bsi, aarch64_arg):
             return False
         if not self.expr.size in self.gpregs_info:
             return False
-        if not test_set_sf(self.parent, self.expr.size):
+        if not check_set_sf(self.parent, self.expr.size):
             return False
         if not self.expr in self.gpregs_info[self.expr.size].expr:
             return False
@@ -925,7 +925,7 @@ class aarch64_imm_sf(imm_noarg):
     def encode(self):
         if not isinstance(self.expr, m2_expr.ExprInt):
             return False
-        if not test_set_sf(self.parent, self.expr.size):
+        if not check_set_sf(self.parent, self.expr.size):
             return False
         value = int(self.expr)
         if value >= 1 << self.l:
@@ -944,7 +944,7 @@ class aarch64_imm_sft(aarch64_imm_sf, aarch64_arg):
     def encode(self):
         if not isinstance(self.expr, m2_expr.ExprInt):
             return False
-        if not test_set_sf(self.parent, self.expr.size):
+        if not check_set_sf(self.parent, self.expr.size):
             return False
         value = int(self.expr)
         if value < 1 << self.l:
@@ -988,7 +988,7 @@ class aarch64_gpreg_ext(reg_noarg, aarch64_arg):
         self.value = gpregsz_info[self.expr.size].expr.index(reg)
         option = extend_lst.index(self.expr.op)
         if self.expr.size != OPTION2SIZE[option]:
-            if not test_set_sf(self.parent, self.expr.size):
+            if not check_set_sf(self.parent, self.expr.size):
                 return False
         self.parent.option.value = option
         self.parent.imm.value = int(amount)
@@ -1099,7 +1099,7 @@ class aarch64_gpreg_ext2_128(aarch64_gpreg_ext2):
         return 4
 
 
-def test_set_sf(parent, size):
+def check_set_sf(parent, size):
     if not hasattr(parent, 'sf'):
         return False
     if parent.sf.value == None:
@@ -1115,7 +1115,7 @@ class aarch64_gpreg_sftimm(reg_noarg, aarch64_arg):
 
     def encode(self):
         size = self.expr.size
-        if not test_set_sf(self.parent, size):
+        if not check_set_sf(self.parent, size):
             return False
         if isinstance(self.expr, m2_expr.ExprId):
             if not size in gpregs_info:
@@ -1376,7 +1376,7 @@ class aarch64_imm_nsr(aarch64_imm_sf, aarch64_arg):
     def encode(self):
         if not isinstance(self.expr, m2_expr.ExprInt):
             return False
-        if not test_set_sf(self.parent, self.expr.size):
+        if not check_set_sf(self.parent, self.expr.size):
             return False
         value = int(self.expr)
         if value == 0:
